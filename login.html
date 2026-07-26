@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - College Canteen Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-wrapper {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .login-left i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #ffd54f;
+        }
+
+        .login-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-left p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .role-selector {
+            width: 100%;
+        }
+
+        .login-right {
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .role-buttons {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .role-btn {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #333;
+        }
+
+        .role-btn i {
+            font-size: 1.5rem;
+            width: 30px;
+        }
+
+        .role-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .role-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .demo-info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #667eea;
+        }
+
+        .demo-info strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .login-left {
+                padding: 30px 20px;
+                min-height: 200px;
+            }
+
+            .login-right {
+                padding: 30px 20px;
+            }
+
+            .login-left h1 {
+                font-size: 1.8rem;
+            }
+
+            .login-left i {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-wrapper">
+            <!-- Left Side -->
+            <div class="login-left">
+                <i class="fas fa-utensils"></i>
+                <h1>College<br>Canteen Hub</h1>
+                <p>Manage your canteen or order food online</p>
+            </div>
+
+            <!-- Right Side -->
+            <div class="login-right">
+                <h2 style="margin-bottom: 20px; color: #333;">Select Your Role</h2>
+                
+                <div class="role-buttons">
+                    <button class="role-btn active" onclick="selectRole('customer')">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Customer</span>
+                    </button>
+                    <button class="role-btn" onclick="selectRole('shopkeeper')">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Shopkeeper</span>
+                    </button>
+                    <button class="role-btn" onclick="selectRole('admin')">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Admin</span>
+                    </button>
+                </div>
+
+                <!-- Customer Login -->
+                <form class="login-form active" id="customer-form" onsubmit="login(event, 'customer')">
+                    <div class="demo-info">
+                        <strong>Demo Email:</strong>
+                        customer@college.com<br>
+                        <strong>Password:</strong>
+                        customer123
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="customer-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="customer-password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login as Customer</button>
+                </form>
+
+                <!-- Shopkeeper Login -->
+                <form class="login-form" id="shopkeeper-form" onsubmit="login(event, 'shopkeeper')">
+                    <div class="demo-info">
+                        <strong>Demo Email:</strong>
+                        shopkeeper@college.com<br>
+                        <strong>Password:</strong>
+                        shopkeeper123
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="shopkeeper-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="shopkeeper-password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login as Shopkeeper</button>
+                </form>
+
+                <!-- Admin Login -->
+                <form class="login-form" id="admin-form" onsubmit="login(event, 'admin')">
+                    <div class="demo-info">
+                        <strong>Demo Email:</strong>
+                        admin@college.com<br>
+                        <strong>Password:</strong>
+                        admin123
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="admin-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="admin-password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login as Admin</button>
+                </form>
+
+                <div class="back-link">
+                    <a onclick="goToHome()">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo credentials
+        const CREDENTIALS = {
+            customer: {
+                email: 'customer@college.com',
+                password: 'customer123'
+            },
+            shopkeeper: {
+                email: 'shopkeeper@college.com',
+                password: 'shopkeeper123'
+            },
+            admin: {
+                email: 'admin@college.com',
+                password: 'admin123'
+            }
+        };
+
+        function selectRole(role) {
+            // Hide all forms
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected form
+            document.getElementById(role + '-form').classList.add('active');
+
+            // Add active to clicked button
+            event.target.closest('.role-btn').classList.add('active');
+        }
+
+        function login(event, role) {
+            event.preventDefault();
+
+            const email = document.getElementById(role + '-email').value;
+            const password = document.getElementById(role + '-password').value;
+
+            // Verify credentials
+            if (email === CREDENTIALS[role].email && password === CREDENTIALS[role].password) {
+                // Store user info in session
+                sessionStorage.setItem('currentUser', JSON.stringify({
+                    role: role,
+                    email: email,
+                    name: role.charAt(0).toUpperCase() + role.slice(1)
+                }));
+
+                // Redirect based on role
+                if (role === 'customer') {
+                    window.location.href = 'index.html';
+                } else if (role === 'shopkeeper') {
+                    window.location.href = 'shopkeeper.html';
+                } else if (role === 'admin') {
+                    window.location.href = 'admin.html';
+                }
+            } else {
+                alert('Invalid email or password!');
+            }
+        }
+
+        function goToHome() {
+            window.location.href = 'index.html';
+        }
+
+        // Set demo email on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('customer-email').value = CREDENTIALS.customer.email;
+            document.getElementById('customer-password').value = CREDENTIALS.customer.password;
+        });
+    </script>
+</body>
+</html>

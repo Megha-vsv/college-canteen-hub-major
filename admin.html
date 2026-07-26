@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - College Canteen Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 250px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-item.active {
+            background: #667eea;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 400px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: auto ;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-disable {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-disable:hover {
+            background: #ff5252;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .stats-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stats-modal.active {
+            display: flex;
+        }
+
+        .stats-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .stats-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .stats-modal-close:hover {
+            color: #333;
+        }
+
+        .stats-modal-content h2 {
+            margin-bottom: 20px;
+            margin-top: 0;
+            color: #333;
+        }
+
+        .items-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .items-list li {
+            padding: 15px;
+            background: #f5f5f5;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .items-list li strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .items-list li span {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-card {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .menu-modal.active {
+            display: flex;
+        }
+
+        .menu-modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .menu-modal-header {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #667eea, #5568d3);
+            color: white;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .menu-modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .menu-modal-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .menu-modal-body {
+            padding: 30px;
+        }
+
+        .menu-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .menu-item-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .menu-item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #5568d3);
+        }
+
+        .menu-item-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-item-category {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .menu-item-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            min-height: 40px;
+        }
+
+        .menu-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .menu-item-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4caf50;
+        }
+
+        .menu-item-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .menu-info-banner {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .menu-info-banner strong {
+            color: #333;
+        }
+
+        .menu-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .menu-empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                display: flex;
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3><i class="fas fa-bars"></i> Admin</h3>
+            <div class="sidebar-item active" onclick="switchPage('dashboard')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('canteens')">
+                <i class="fas fa-store"></i>
+                <span>Canteens</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('orders')">
+                <i class="fas fa-receipt"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('users')">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('reports')">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </div>
+            <hr style="margin: 30px 0; opacity: 0.2;">
+            <div class="sidebar-item" onclick="logout()" style="color: #ff6b6b;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Admin Dashboard</h1>
+                        <p style="color: #666; margin-top: 5px;">Welcome Admin, manage your platform here</p>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">A</div>
+                        <div>
+                            <div style="font-weight: 600;">Admin</div>
+                            <button class="logout-btn" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="openStatsModal('canteens')">
+                        <i class="fas fa-store"></i>
+                        <h3>Total Canteens</h3>
+                        <div class="value" id="canteen-count-value">56</div>
+                    </div>
+                    <div class="stat-card" onclick="openStatsModal('orders')">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Total Orders</h3>
+                        <div class="value" id="orders-count-value">1,245</div>
+                    </div>
+                    <div class="stat-card" onclick="openStatsModal('revenue')">
+                        <i class="fas fa-rupee-sign"></i>
+                        <h3>Revenue</h3>
+                        <div class="value" id="revenue-value">₹1.2L</div>
+                    </div>
+                    <div class="stat-card" onclick="openStatsModal('users')">
+                        <i class="fas fa-users"></i>
+                        <h3>Active Users</h3>
+                        <div class="value" id="users-count-value">5,432</div>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <h3 style="margin-bottom: 20px;">Platform Overview</h3>
+                    <p style="color: #666; line-height: 1.8;">
+                        Welcome to the College Canteen Hub Admin Panel. From here you can:
+                    </p>
+                    <ul style="margin-left: 20px; color: #666; line-height: 1.8; margin-top: 10px;">
+                        <li>Monitor all canteens and their activities</li>
+                        <li>Track orders and revenue</li>
+                        <li>Manage user accounts</li>
+                        <li>View detailed reports</li>
+                        <li>Configure platform settings</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Canteens Page -->
+            <div class="page" id="canteens">
+                <div class="dashboard-header">
+                    <h1>Manage Canteens & Menus</h1>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="search-canteen" placeholder="Search canteens...">
+                    <button onclick="searchCanteens()">Search</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Canteen Name</th>
+                                <th>Location</th>
+                                <th>Menu Items</th>
+                                <th>Custom Menu</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="canteens-table">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div class="page" id="orders">
+                <div class="dashboard-header">
+                    <h1>All Orders</h1>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Canteen</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD001</td>
+                                <td>John Doe</td>
+                                <td>North Canteen</td>
+                                <td>₹450</td>
+                                <td><span class="status-badge status-active">Completed</span></td>
+                                <td>Jan 25, 2026</td>
+                            </tr>
+                            <tr>
+                                <td>#ORD002</td>
+                                <td>Jane Smith</td>
+                                <td>South Canteen</td>
+                                <td>₹650</td>
+                                <td><span class="status-badge status-active">Completed</span></td>
+                                <td>Jan 25, 2026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Page -->
+            <div class="page" id="users">
+                <div class="dashboard-header">
+                    <h1>Manage Users</h1>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="search-user" placeholder="Search users...">
+                    <button onclick="searchUsers()">Search</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Raj Kumar</td>
+                                <td>raj@college.com</td>
+                                <td>Shopkeeper</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn-small btn-view">View</button>
+                                    <button class="btn-small btn-disable">Disable</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Priya Singh</td>
+                                <td>priya@college.com</td>
+                                <td>Shopkeeper</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn-small btn-view">View</button>
+                                    <button class="btn-small btn-disable">Disable</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div class="page" id="reports">
+                <div class="dashboard-header">
+                    <h1>Reports</h1>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="generateReport('sales')" style="cursor: pointer;">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Sales Report</h3>
+                        <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">Click to generate</p>
+                    </div>
+                    <div class="stat-card" onclick="generateReport('users')" style="cursor: pointer;">
+                        <i class="fas fa-users"></i>
+                        <h3>User Report</h3>
+                        <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">Click to generate</p>
+                    </div>
+                    <div class="stat-card" onclick="generateReport('canteens')" style="cursor: pointer;">
+                        <i class="fas fa-store"></i>
+                        <h3>Canteen Report</h3>
+                        <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">Click to generate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Modals -->
+    <!-- Canteens Modal -->
+    <div class="stats-modal" id="canteens-modal">
+        <div class="stats-modal-content">
+            <button class="stats-modal-close" onclick="closeStatsModal('canteens')">&times;</button>
+            <h2><i class="fas fa-store"></i> All Canteens</h2>
+            <ul class="items-list" id="canteens-list">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Orders Modal -->
+    <div class="stats-modal" id="orders-modal">
+        <div class="stats-modal-content">
+            <button class="stats-modal-close" onclick="closeStatsModal('orders')">&times;</button>
+            <h2><i class="fas fa-receipt"></i> All Orders</h2>
+            <ul class="items-list" id="orders-list">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Revenue Modal -->
+    <div class="stats-modal" id="revenue-modal">
+        <div class="stats-modal-content">
+            <button class="stats-modal-close" onclick="closeStatsModal('revenue')">&times;</button>
+            <h2><i class="fas fa-rupee-sign"></i> Revenue Breakdown</h2>
+            <ul class="items-list" id="revenue-list">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ddd;">
+                <strong style="font-size: 1.1rem;">Total Revenue: <span id="total-revenue-amount">₹1,20,000</span></strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Modal -->
+    <div class="stats-modal" id="users-modal">
+        <div class="stats-modal-content">
+            <button class="stats-modal-close" onclick="closeStatsModal('users')">&times;</button>
+            <h2><i class="fas fa-users"></i> Active Users</h2>
+            <ul class="items-list" id="users-list">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Canteen Menu Modal -->
+    <div class="menu-modal" id="canteen-menu-modal">
+        <div class="menu-modal-content">
+            <div class="menu-modal-header">
+                <h2 id="menu-modal-title"><i class="fas fa-list"></i> Menu</h2>
+                <button class="menu-modal-close" onclick="closeCanteenMenuModal()">&times;</button>
+            </div>
+            <div class="menu-modal-body">
+                <div class="menu-info-banner" id="menu-info-banner">
+                    <!-- Info will be populated here -->
+                </div>
+                <div class="menu-items-grid" id="menu-items-container">
+                    <!-- Menu items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="menu-modal" id="report-modal">
+        <div class="menu-modal-content">
+            <div class="menu-modal-header">
+                <h2 id="report-modal-title"><i class="fas fa-file-alt"></i> Report</h2>
+                <button class="menu-modal-close" onclick="closeReportModal()">&times;</button>
+            </div>
+            <div class="menu-modal-body">
+                <div class="menu-info-banner" id="report-info-banner">
+                    <!-- Info will be populated here -->
+                </div>
+                <div class="menu-items-grid" id="report-items-container">
+                    <!-- Report items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Complete menu data from index.html
+        const canteenMenus = {
+            "Captain Cuisine": [
+                { id: 1, name: "Captain's Special Platter", price: 350, category: "Main Course", description: "Signature dish with grilled chicken, vegetables and special sauce", available: true },
+                { id: 2, name: "Butter Chicken", price: 280, category: "Main Course", description: "Tender chicken in rich tomato and butter gravy", available: true },
+                { id: 3, name: "Veg Biryani", price: 180, category: "Main Course", description: "Fragrant basmati rice with mixed vegetables and spices", available: true },
+                { id: 4, name: "Paneer Tikka", price: 220, category: "Appetizers", description: "Cottage cheese cubes marinated and grilled to perfection", available: true },
+                { id: 5, name: "Chocolate Lava Cake", price: 120, category: "Desserts", description: "Warm chocolate cake with molten center, served with ice cream", available: true }
+            ],
+            "Utopia": [
+                { id: 6, name: "Caramel Frappuccino", price: 180, category: "Beverages", description: "Blended coffee with caramel syrup and whipped cream", available: true },
+                { id: 7, name: "Blueberry Muffin", price: 90, category: "Snacks", description: "Freshly baked muffin with blueberry chunks", available: true },
+                { id: 8, name: "Club Sandwich", price: 160, category: "Sandwiches", description: "Triple-decker sandwich with veggies and mayo", available: true },
+                { id: 9, name: "Iced Tea", price: 70, category: "Beverages", description: "Refreshing lemon iced tea", available: true },
+                { id: 10, name: "Chocolate Chip Cookies", price: 60, category: "Snacks", description: "Soft cookies loaded with chocolate chips", available: true }
+            ],
+            "Capitol": [
+                { id: 11, name: "Thali Meal", price: 200, category: "Main Course", description: "Complete meal with rice, roti, dal, two vegetables, raita and dessert", available: true },
+                { id: 12, name: "Masala Dosa", price: 120, category: "Breakfast", description: "Crispy fermented crepe with potato filling", available: true },
+                { id: 13, name: "Chole Bhature", price: 150, category: "Main Course", description: "Spicy chickpea curry with fried bread", available: true },
+                { id: 14, name: "Vegetable Pulao", price: 130, category: "Main Course", description: "Fragrant rice cooked with vegetables and spices", available: true },
+                { id: 15, name: "Rasmalai", price: 80, category: "Desserts", description: "Soft cottage cheese balls in sweetened condensed milk", available: true }
+            ],
+            "Size Zero": [
+                { id: 16, name: "Quinoa Salad Bowl", price: 200, category: "Salads", description: "Quinoa with mixed greens, cherry tomatoes, avocado and lemon dressing", available: true },
+                { id: 17, name: "Green Detox Smoothie", price: 150, category: "Beverages", description: "Blend of spinach, kale, apple and lemon", available: true },
+                { id: 18, name: "Grilled Chicken Breast", price: 250, category: "Main Course", description: "Lean chicken breast with steamed vegetables", available: true },
+                { id: 19, name: "Protein Shake", price: 180, category: "Beverages", description: "Whey protein shake with almond milk", available: true },
+                { id: 20, name: "Avocado Toast", price: 120, category: "Breakfast", description: "Whole wheat toast with smashed avocado and seeds", available: true }
+            ],
+            "Farki": [
+                { id: 21, name: "Pasta in White Sauce", price: 160, category: "Main Course", description: "Penne pasta in creamy white sauce with herbs", available: true },
+                { id: 22, name: "French Fries", price: 80, category: "Snacks", description: "Crispy golden fries with ketchup", available: true },
+                { id: 23, name: "Veg Burger", price: 100, category: "Burgers", description: "Burger with veg patty, lettuce and sauce", available: true },
+                { id: 24, name: "Cold Coffee", price: 110, category: "Beverages", description: "Chilled coffee with ice cream and chocolate syrup", available: true },
+                { id: 25, name: "Garlic Bread", price: 90, category: "Snacks", description: "Toasted bread with garlic butter and herbs", available: true }
+            ],
+            "Belgian Waffle": [
+                { id: 26, name: "Chocolate Belgian Waffle", price: 180, category: "Desserts", description: "Crispy waffle with chocolate sauce and whipped cream", available: true },
+                { id: 27, name: "Strawberry Waffle", price: 170, category: "Desserts", description: "Waffle topped with fresh strawberries and syrup", available: true },
+                { id: 28, name: "Nutella Waffle", price: 200, category: "Desserts", description: "Waffle generously topped with Nutella and nuts", available: true },
+                { id: 29, name: "Ice Cream Waffle", price: 190, category: "Desserts", description: "Waffle served with two scoops of ice cream", available: true },
+                { id: 30, name: "Plain Waffle with Maple Syrup", price: 120, category: "Desserts", description: "Classic waffle with pure maple syrup", available: true }
+            ],
+            "Cafe Hot Spot": [
+                { id: 31, name: "Hot Spot Burger", price: 150, category: "Burgers", description: "Signature burger with special sauce and crispy veggies", available: true },
+                { id: 32, name: "Cappuccino", price: 100, category: "Beverages", description: "Rich espresso with steamed milk and foam", available: true },
+                { id: 33, name: "Chicken Wrap", price: 160, category: "Sandwiches", description: "Grilled chicken with veggies in tortilla wrap", available: true },
+                { id: 34, name: "Hot Chocolate", price: 90, category: "Beverages", description: "Creamy hot chocolate with marshmallows", available: true },
+                { id: 35, name: "French Toast", price: 130, category: "Breakfast", description: "Golden brown toast with honey and fruits", available: true }
+            ],
+            "Cafe Appetito": [
+                { id: 36, name: "Margherita Pizza", price: 200, category: "Pizza", description: "Classic pizza with tomato sauce, mozzarella and basil", available: true },
+                { id: 37, name: "Pasta Alfredo", price: 180, category: "Pasta", description: "Fettuccine pasta in creamy Alfredo sauce", available: true },
+                { id: 38, name: "Garlic Mushroom", price: 140, category: "Appetizers", description: "Mushrooms sautéed in garlic butter", available: true },
+                { id: 39, name: "Tiramisu", price: 120, category: "Desserts", description: "Classic Italian dessert with coffee-soaked ladyfingers", available: true },
+                { id: 40, name: "Minestrone Soup", price: 100, category: "Soups", description: "Hearty Italian vegetable soup", available: true }
+            ],
+            "La Pinoz Pizza": [
+                { id: 41, name: "VEG TAMER", price: 275, category: "Pizza", description: "Special veg pizza with assorted toppings", available: true },
+                { id: 42, name: "Giant Pizza", price: 300, category: "Pizza", description: "Large pizza with generous toppings", available: true },
+                { id: 43, name: "Sweet Corns & Cheese", price: 350, category: "Pizza", description: "Pizza loaded with sweet corn and extra cheese", available: true },
+                { id: 44, name: "PREMIUM VEG", price: 195, category: "Pizza", description: "Premium vegetable pizza with exotic toppings", available: true },
+                { id: 45, name: "Cheese Dip Special", price: 445, category: "Pizza", description: "Cheese Dip with jalapeno and special toppings", available: true }
+            ],
+            "Chatoree": [
+                { id: 65, name: "Pani Puri", price: 60, category: "Street Food", description: "Crispy puris filled with spicy tangy water", available: true },
+                { id: 66, name: "Bhel Puri", price: 70, category: "Street Food", description: "Puffed rice with chutneys and vegetables", available: true },
+                { id: 67, name: "Samosa Chaat", price: 80, category: "Street Food", description: "Crumbled samosa with chutneys and yogurt", available: true },
+                { id: 68, name: "Dahi Puri", price: 75, category: "Street Food", description: "Crisp puris filled with yogurt and spices", available: true },
+                { id: 69, name: "Aloo Tikki Chaat", price: 85, category: "Street Food", description: "Potato patties with chutneys and spices", available: true }
+            ],
+            "Konaseema Ruchulu": [
+                { id: 70, name: "Andhra Chicken Curry", price: 280, category: "Main Course", description: "Spicy Andhra style chicken curry", available: true },
+                { id: 71, name: "Andhra Meals", price: 220, category: "Main Course", description: "Traditional Andhra meal with rice and curries", available: true },
+                { id: 72, name: "Gongura Chicken", price: 300, category: "Main Course", description: "Chicken cooked with sorrel leaves", available: true },
+                { id: 73, name: "Prawn Fry", price: 320, category: "Seafood", description: "Crispy fried prawns with Andhra spices", available: true },
+                { id: 74, name: "Rava Laddu", price: 50, category: "Desserts", description: "Sweet semolina balls", available: true }
+            ],
+            "Sri Rudra": [
+                { id: 75, name: "Masala Dosa", price: 100, category: "Breakfast", description: "Crispy dosa with potato masala", available: true },
+                { id: 76, name: "Idli Sambar", price: 70, category: "Breakfast", description: "Steamed rice cakes with lentil soup", available: true },
+                { id: 77, name: "Vada Sambar", price: 80, category: "Breakfast", description: "Fried lentil donut with sambar", available: true },
+                { id: 78, name: "Pongal", price: 90, category: "Breakfast", description: "Rice and lentil porridge with ghee", available: true },
+                { id: 79, name: "Filter Coffee", price: 40, category: "Beverages", description: "Traditional South Indian filter coffee", available: true }
+            ]
+        };
+
+        // List of all canteens from the main system
+        const CANTEENS_LIST = [
+            "Captain Cuisine", "Utopia", "Capitol", "Size Zero", "Farki", "Belgian Waffle", 
+            "Cafe Hot Spot", "Cafe Appetito", "La Pinoz Pizza", "Chatoree", "Konaseema Ruchulu", "Sri Rudra",
+            "Indian Salt", "Rajwadi Gola", "Cafe Bollywood", "Krishna Food Canteen",
+            "Campus Brew", "Spice Junction", "Burger Junction", "Noodle House",
+            "Dosa Point", "Juice Bar", "Sandwich Corner", "Ice Cream Parlor",
+            "Momo Point", "Pav Bhaji Corner", "Salad Bar", "Pizza Palace",
+            "Chaat Corner", "Healthy Bites", "Tandoori Hut", "Quick Bites",
+            "Cold Cafe", "Mexican Corner", "Thai Kitchen", "Mediterranean Delight",
+            "Korean Kitchen", "Sushi Bar", "Breakfast Club", "Tea House",
+            "Waffle House", "Curry Corner", "Street Food Hub", "Healthy Juice",
+            "Gourmet Kitchen", "Snack Bar", "South Indian Delight", "North Indian Feast",
+            "Bakery Corner", "Fast Food Express", "Soup Kitchen", "Dessert Paradise"
+        ];
+
+        function switchPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Remove active from all sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(pageName).classList.add('active');
+
+            // Add active to clicked sidebar item
+            if (event && event.target) {
+                event.target.closest('.sidebar-item')?.classList.add('active');
+            }
+
+            // Load data if canteens page
+            if (pageName === 'canteens') {
+                loadCanteensWithMenus();
+            }
+        }
+
+        function loadCanteensWithMenus() {
+            const table = document.getElementById('canteens-table');
+            table.innerHTML = '';
+
+            CANTEENS_LIST.forEach(canteenName => {
+                const shopMenuKey = `shop_menu_${canteenName}`;
+                const customMenu = JSON.parse(localStorage.getItem(shopMenuKey) || '[]');
+                const defaultItems = canteenMenus[canteenName] || [];
+                
+                // Show custom menu count if exists, otherwise default count
+                const totalItems = customMenu.length > 0 ? customMenu.length : defaultItems.length;
+                const hasCustomMenu = customMenu.length > 0;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${canteenName}</strong></td>
+                    <td>Campus Area</td>
+                    <td><span style="background: #e8eaf6; padding: 5px 10px; border-radius: 4px; font-weight: 600;">📋 ${totalItems} items</span></td>
+                    <td>${hasCustomMenu ? '<span class="status-badge status-active">✓ Custom Menu</span>' : '<span style="color: #999; padding: 5px 10px;">Default Menu</span>'}</td>
+                    <td>
+                        <button class="btn-small btn-view" onclick="viewCanteenMenu('${canteenName}')" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-eye"></i> View Menu
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function viewCanteenMenu(canteenName) {
+            // Get custom menu from localStorage
+            const shopMenuKey = `shop_menu_${canteenName}`;
+            const customMenu = JSON.parse(localStorage.getItem(shopMenuKey) || '[]');
+
+            // Get default items from canteenMenus
+            const defaultItems = canteenMenus[canteenName] || [];
+
+            // Use custom if exists, otherwise use default
+            const menuItems = customMenu.length > 0 ? customMenu : defaultItems;
+            const isCustomMenu = customMenu.length > 0;
+
+            // Set modal title
+            document.getElementById('menu-modal-title').innerHTML = `<i class="fas fa-list"></i> ${canteenName} - Menu`;
+
+            // Set info banner
+            const infoBanner = document.getElementById('menu-info-banner');
+            infoBanner.innerHTML = `
+                <strong>📋 Total Items: ${menuItems.length}</strong><br>
+                ${isCustomMenu ? '✓ Custom Menu (Edited by Shopkeeper)' : 'Default Menu Items from index.html'}
+            `;
+
+            // Clear and populate menu items grid
+            const container = document.getElementById('menu-items-container');
+            container.innerHTML = '';
+
+            if (menuItems.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center;">
+                        <div class="menu-empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No menu items available</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                menuItems.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    card.innerHTML = `
+                        <div class="menu-item-name">
+                            <span>#${index + 1}</span> ${item.name}
+                        </div>
+                        <div class="menu-item-category">${item.category || 'General'}</div>
+                        <div class="menu-item-description">
+                            ${item.description || 'No description available'}
+                        </div>
+                        <div class="menu-item-details">
+                            <div class="menu-item-price">₹${item.price}</div>
+                            <div class="menu-item-status ${item.available ? 'status-available' : 'status-unavailable'}">
+                                <i class="fas ${item.available ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                                ${item.available ? 'Available' : 'Unavailable'}
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            // Show modal
+            document.getElementById('canteen-menu-modal').classList.add('active');
+        }
+
+        function closeCanteenMenuModal() {
+            document.getElementById('canteen-menu-modal').classList.remove('active');
+        }
+
+        // Close menu modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('canteen-menu-modal');
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        function searchCanteens() {
+            const search = document.getElementById('search-canteen').value.toLowerCase();
+            const table = document.getElementById('canteens-table');
+            const rows = table.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function searchUsers() {
+            const search = document.getElementById('search-user').value.toLowerCase();
+            alert('Search for: ' + search);
+        }
+
+        function generateReport(type) {
+            const modal = document.getElementById('report-modal');
+            const titleEl = document.getElementById('report-modal-title');
+            const infoBanner = document.getElementById('report-info-banner');
+            const container = document.getElementById('report-items-container');
+
+            container.innerHTML = '';
+
+            if (type === 'sales') {
+                titleEl.innerHTML = '<i class="fas fa-chart-line"></i> Sales Report';
+                
+                let canteensWithMenu = [];
+                let totalOrders = 0;
+                let totalRevenue = 0;
+
+                const salesData = [
+                    {canteen: 'Captain Cuisine', orders: 35, revenue: 12500},
+                    {canteen: 'La Pinoz Pizza', orders: 42, revenue: 15800},
+                    {canteen: 'Utopia', orders: 38, revenue: 11200},
+                    {canteen: 'Capitol', orders: 28, revenue: 9800},
+                    {canteen: 'Size Zero', orders: 25, revenue: 8500},
+                    {canteen: 'Belgian Waffle', orders: 33, revenue: 10300},
+                    {canteen: 'Cafe Hot Spot', orders: 40, revenue: 13200},
+                    {canteen: 'Chatoree', orders: 32, revenue: 9100},
+                    {canteen: 'Cafe Appetito', orders: 22, revenue: 7800},
+                    {canteen: 'Konaseema Ruchulu', orders: 18, revenue: 6900},
+                ];
+
+                salesData.forEach(item => {
+                    totalOrders += item.orders;
+                    totalRevenue += item.revenue;
+                });
+
+                infoBanner.innerHTML = `
+                    <strong>📊 Total Orders: ${totalOrders}</strong> | <strong>💰 Total Revenue: ₹${totalRevenue.toLocaleString()}</strong><br>
+                    <span style="font-size: 0.9rem;">Report Generated: ${new Date().toLocaleDateString()}</span>
+                `;
+
+                salesData.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    const percentage = ((item.revenue / totalRevenue) * 100).toFixed(1);
+                    card.innerHTML = `
+                        <div class="menu-item-name">
+                            <span>#${index + 1}</span> ${item.canteen}
+                        </div>
+                        <div class="menu-item-category">${item.canteen}</div>
+                        <div style="margin: 15px 0; background: #f0f0f0; border-radius: 4px; height: 20px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #667eea, #5568d3); height: 100%; width: ${percentage}%; transition: width 0.3s ease;"></div>
+                        </div>
+                        <div class="menu-item-details">
+                            <div>
+                                <div style="font-size: 0.8rem; color: #999;">Orders</div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #667eea;">${item.orders}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.8rem; color: #999;">Revenue</div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #4caf50;">₹${item.revenue.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } else if (type === 'users') {
+                titleEl.innerHTML = '<i class="fas fa-users"></i> User Report';
+
+                const usersData = [
+                    {name: 'John Doe', email: 'john@college.com', role: 'Student', orders: 12, spent: 4200},
+                    {name: 'Jane Smith', email: 'jane@college.com', role: 'Student', orders: 15, spent: 5600},
+                    {name: 'Raj Kumar', email: 'raj@college.com', role: 'Shopkeeper', orders: 0, spent: 0},
+                    {name: 'Priya Singh', email: 'priya@college.com', role: 'Shopkeeper', orders: 0, spent: 0},
+                    {name: 'Amit Patel', email: 'amit@college.com', role: 'Student', orders: 8, spent: 2800},
+                    {name: 'Sana Khan', email: 'sana@college.com', role: 'Student', orders: 10, spent: 3500},
+                    {name: 'Nikhil Sharma', email: 'nikhil@college.com', role: 'Shopkeeper', orders: 0, spent: 0},
+                    {name: 'Anjali Verma', email: 'anjali@college.com', role: 'Student', orders: 14, spent: 5100},
+                ];
+
+                const totalUsers = usersData.length;
+                const totalStudents = usersData.filter(u => u.role === 'Student').length;
+                const totalShopkeepers = usersData.filter(u => u.role === 'Shopkeeper').length;
+
+                infoBanner.innerHTML = `
+                    <strong>👥 Total Users: ${totalUsers}</strong> | <strong>🎓 Students: ${totalStudents}</strong> | <strong>🏪 Shopkeepers: ${totalShopkeepers}</strong><br>
+                    <span style="font-size: 0.9rem;">Report Generated: ${new Date().toLocaleDateString()}</span>
+                `;
+
+                usersData.forEach((user, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    const roleColor = user.role === 'Shopkeeper' ? '#667eea' : '#4caf50';
+                    const roleIcon = user.role === 'Shopkeeper' ? 'fa-store' : 'fa-graduation-cap';
+                    card.innerHTML = `
+                        <div class="menu-item-name">
+                            <i class="fas ${roleIcon}"></i> ${user.name}
+                        </div>
+                        <div class="menu-item-category" style="background: ${roleColor}20; color: ${roleColor};">${user.role}</div>
+                        <div style="font-size: 0.9rem; color: #666; margin: 10px 0;">
+                            <strong>📧 Email:</strong> ${user.email}
+                        </div>
+                        <div class="menu-item-details">
+                            <div>
+                                <div style="font-size: 0.8rem; color: #999;">Orders</div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #667eea;">${user.orders}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.8rem; color: #999;">Total Spent</div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #4caf50;">₹${user.spent.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } else if (type === 'canteens') {
+                titleEl.innerHTML = '<i class="fas fa-store"></i> Canteen Report';
+
+                const canteenReportData = [
+                    {name: 'Captain Cuisine', location: 'Building A', status: 'Active', items: 45, revenue: 12500},
+                    {name: 'La Pinoz Pizza', location: 'Building B', status: 'Active', items: 28, revenue: 15800},
+                    {name: 'Utopia', location: 'Building C', status: 'Active', items: 32, revenue: 11200},
+                    {name: 'Capitol', location: 'Building A', status: 'Active', items: 38, revenue: 9800},
+                    {name: 'Size Zero', location: 'Building D', status: 'Active', items: 22, revenue: 8500},
+                    {name: 'Belgian Waffle', location: 'Building B', status: 'Active', items: 25, revenue: 10300},
+                    {name: 'Cafe Hot Spot', location: 'Building C', status: 'Active', items: 41, revenue: 13200},
+                    {name: 'Chatoree', location: 'Building D', status: 'Active', items: 18, revenue: 9100},
+                ];
+
+                infoBanner.innerHTML = `
+                    <strong>🏪 Total Canteens: ${canteenReportData.length}</strong> | <strong>📍 Active Locations: ${new Set(canteenReportData.map(c => c.location)).size}</strong><br>
+                    <span style="font-size: 0.9rem;">Report Generated: ${new Date().toLocaleDateString()}</span>
+                `;
+
+                canteenReportData.forEach((canteen, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    card.innerHTML = `
+                        <div class="menu-item-name">
+                            <span>#${index + 1}</span> ${canteen.name}
+                        </div>
+                        <div class="menu-item-category">${canteen.location}</div>
+                        <div style="font-size: 0.9rem; color: #666; margin: 10px 0;">
+                            <div><strong>📝 Menu Items:</strong> ${canteen.items} items</div>
+                            <div><strong>💰 Revenue:</strong> ₹${canteen.revenue.toLocaleString()}</div>
+                        </div>
+                        <div class="menu-item-details">
+                            <div class="menu-item-status status-available">
+                                <i class="fas fa-check-circle"></i>
+                                ${canteen.status}
+                            </div>
+                            <div style="text-align: right; font-weight: 700; color: #667eea;">
+                                ${canteen.items} Items
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.remove('active');
+        }
+
+        // Close report modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('report-modal');
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Modal Functions for Stats Cards
+        function openStatsModal(type) {
+            const modalId = type + '-modal';
+            const modal = document.getElementById(modalId);
+            
+            if (type === 'canteens') {
+                loadCanteensData();
+            } else if (type === 'orders') {
+                loadOrdersData();
+            } else if (type === 'revenue') {
+                loadRevenueData();
+            } else if (type === 'users') {
+                loadUsersData();
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeStatsModal(type) {
+            const modalId = type + '-modal';
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.stats-modal.active');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        function loadCanteensData() {
+            const list = document.getElementById('canteens-list');
+            list.innerHTML = '';
+            
+            CANTEENS_LIST.forEach((canteen, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${index + 1}. ${canteen}</strong><span>Campus Food Service</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        function loadOrdersData() {
+            const list = document.getElementById('orders-list');
+            list.innerHTML = '';
+            
+            const orders = [
+                {id: 'ORD001', customer: 'John Doe', canteen: 'Captain Cuisine', amount: '₹450', date: '25 Feb 2026'},
+                {id: 'ORD002', customer: 'Jane Smith', canteen: 'Utopia', amount: '₹650', date: '25 Feb 2026'},
+                {id: 'ORD003', customer: 'Raj Kumar', canteen: 'Capitol', amount: '₹350', date: '24 Feb 2026'},
+                {id: 'ORD004', customer: 'Priya Singh', canteen: 'La Pinoz Pizza', amount: '₹550', date: '24 Feb 2026'},
+                {id: 'ORD005', customer: 'Amit Patel', canteen: 'Size Zero', amount: '₹380', date: '23 Feb 2026'},
+                {id: 'ORD006', customer: 'Sana Khan', canteen: 'Cafe Hot Spot', amount: '₹420', date: '23 Feb 2026'},
+                {id: 'ORD007', customer: 'Nikhil Sharma', canteen: 'Belgian Waffle', amount: '₹280', date: '23 Feb 2026'},
+                {id: 'ORD008', customer: 'Anjali Verma', canteen: 'Chatoree', amount: '₹320', date: '22 Feb 2026'},
+            ];
+            
+            orders.forEach(order => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>#${order.id} - ${order.customer}</strong>
+                    <span><strong>Canteen:</strong> ${order.canteen} | <strong>Amount:</strong> ${order.amount} | <strong>Date:</strong> ${order.date}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function loadRevenueData() {
+            const list = document.getElementById('revenue-list');
+            list.innerHTML = '';
+            
+            const revenueByCanteen = [
+                {canteen: 'Captain Cuisine', revenue: '₹12,500', orders: 35},
+                {canteen: 'La Pinoz Pizza', revenue: '₹15,800', orders: 42},
+                {canteen: 'Utopia', revenue: '₹11,200', orders: 38},
+                {canteen: 'Capitol', revenue: '₹9,800', orders: 28},
+                {canteen: 'Size Zero', revenue: '₹8,500', orders: 25},
+                {canteen: 'Belgian Waffle', revenue: '₹10,300', orders: 33},
+                {canteen: 'Cafe Hot Spot', revenue: '₹13,200', orders: 40},
+                {canteen: 'Chatoree', revenue: '₹9,100', orders: 32},
+                {canteen: 'Cafe Appetito', revenue: '₹7,800', orders: 22},
+                {canteen: 'Konaseema Ruchulu', revenue: '₹6,900', orders: 18},
+            ];
+            
+            revenueByCanteen.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>${item.canteen}</strong>
+                    <span><strong>Revenue:</strong> ${item.revenue} | <strong>Orders:</strong> ${item.orders}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function loadUsersData() {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            
+            const users = [
+                {name: 'John Doe', email: 'john@college.com', role: 'Student', status: 'Active'},
+                {name: 'Jane Smith', email: 'jane@college.com', role: 'Student', status: 'Active'},
+                {name: 'Raj Kumar', email: 'raj@college.com', role: 'Shopkeeper', status: 'Active'},
+                {name: 'Priya Singh', email: 'priya@college.com', role: 'Shopkeeper', status: 'Active'},
+                {name: 'Amit Patel', email: 'amit@college.com', role: 'Student', status: 'Active'},
+                {name: 'Sana Khan', email: 'sana@college.com', role: 'Student', status: 'Active'},
+                {name: 'Nikhil Sharma', email: 'nikhil@college.com', role: 'Shopkeeper', status: 'Active'},
+                {name: 'Anjali Verma', email: 'anjali@college.com', role: 'Student', status: 'Active'},
+                {name: 'Vikram Singh', email: 'vikram@college.com', role: 'Student', status: 'Active'},
+                {name: 'Deepak Kumar', email: 'deepak@college.com', role: 'Shopkeeper', status: 'Active'},
+            ];
+            
+            users.forEach(user => {
+                const li = document.createElement('li');
+                const roleColor = user.role === 'Shopkeeper' ? '#667eea' : '#4caf50';
+                li.innerHTML = `
+                    <strong>${user.name}</strong>
+                    <span><strong>Email:</strong> ${user.email} | <strong>Role:</strong> <span style="color: ${roleColor}; font-weight: 600;">${user.role}</span> | <strong>Status:</strong> <span style="color: #4caf50;">✓ ${user.status}</span></span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

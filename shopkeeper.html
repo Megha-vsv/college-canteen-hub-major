@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper - Menu Editor - College Canteen Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .shopkeeper-dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 250px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-item.active {
+            background: #667eea;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+
+        /* Menu Editor */
+        .menu-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .menu-list {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-list h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .menu-items {
+            display: grid;
+            gap: 15px;
+        }
+
+        .menu-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .menu-item-info {
+            flex: 1;
+        }
+
+        .menu-item-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .menu-item-details {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .menu-item-price {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-right: 20px;
+        }
+
+        .menu-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ff5252;
+        }
+
+        /* Add Item Form */
+        .add-item-form {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 30px;
+        }
+
+        .add-item-form h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Statistics */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .shopkeeper-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                display: flex;
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .menu-container {
+                grid-template-columns: 1fr;
+            }
+
+            .add-item-form {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shopkeeper-dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3><i class="fas fa-bars"></i> Canteen</h3>
+            <div class="sidebar-item" onclick="switchPage('shops')" style="background: #667eea; margin-bottom: 10px;">
+                <i class="fas fa-store"></i>
+                <span>🏪 All Shops</span>
+            </div>
+            <div class="sidebar-item" style="color: #ffd54f; margin-bottom: 20px; cursor: default;">
+                <i class="fas fa-check-circle"></i>
+                <span id="selected-shop">Select Shop</span>
+            </div>
+            <div class="sidebar-item active" onclick="switchPage('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('menu')">
+                <i class="fas fa-utensils"></i>
+                <span>Edit Menu</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('orders')">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="switchPage('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+            <hr style="margin: 30px 0; opacity: 0.2;">
+            <div class="sidebar-item" onclick="logout()" style="color: #ff6b6b;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p style="color: #666; margin-top: 5px;">Welcome to your canteen management panel</p>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">S</div>
+                        <div>
+                            <div style="font-weight: 600;">Shopkeeper</div>
+                            <button class="logout-btn" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-utensils"></i>
+                        <h3>Menu Items</h3>
+                        <div class="value" id="stat-items">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Today's Orders</h3>
+                        <div class="value" id="stat-orders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-rupee-sign"></i>
+                        <h3>Today's Sales</h3>
+                        <div class="value" id="stat-sales">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3>Rating</h3>
+                        <div class="value">4.5</div>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 10px 300px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <h3 style="margin-bottom: 50px;">Quick Actions</h3>
+                    <button onclick="switchPage('menu')" style="padding: 1px 30px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; font-weight: 600;">
+                        <i class="fas fa-plus"></i> Add Menu Item
+                    </button>
+                    <button onclick="switchPage('orders')" style="padding: 10px 26px; background: #764ba2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-box"></i> View Orders
+                    </button>
+                </div>
+            </div>
+
+            <!-- Shops Page -->
+            <div class="page" id="shops">
+                <div class="dashboard-header">
+                    <h1>🏪 Select Your Shop</h1>
+                    <p style="color: #666; margin-top: 5px;">Choose from 56 campus canteens</p>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <div id="shops-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 10px;">
+                        <!-- Shops will be loaded here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Edit Page -->
+            <div class="page" id="menu">
+                <div class="dashboard-header">
+                    <h1>Edit Menu</h1>
+                </div>
+
+                <div class="menu-container">
+                    <div class="menu-list">
+                        <h2>Your Menu Items</h2>
+                        <div class="menu-items" id="menu-items">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No menu items yet. Add your first item →</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="add-item-form">
+                        <h3>Add New Item</h3>
+                        <form onsubmit="addMenuItem(event)">
+                            <div class="form-group">
+                                <label>Item Name</label>
+                                <input type="text" id="item-name" placeholder="e.g., Biryani" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Price (₹)</label>
+                                <input type="number" id="item-price" placeholder="100" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="item-category" required>
+                                    <option>Select Category</option>
+                                    <option>Main Course</option>
+                                    <option>Beverages</option>
+                                    <option>Snacks</option>
+                                    <option>Desserts</option>
+                                    <option>Breakfast</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="item-description" placeholder="Item description..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="item-available" checked> Available
+                                </label>
+                            </div>
+                            <button type="submit" class="btn-add">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div class="page" id="orders">
+                <div class="dashboard-header">
+                    <h1>Orders</h1>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No orders yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="settings">
+                <div class="dashboard-header">
+                    <h1>Settings</h1>
+                </div>
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                    <h3 style="margin-bottom: 20px;">Canteen Settings</h3>
+                    <div class="form-group">
+                        <label>Canteen Name</label>
+                        <input type="text" value="My Canteen" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Operating Hours</label>
+                        <input type="text" value="9:00 AM - 9:00 PM" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <button style="margin-top: 20px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Complete menu data for all canteens (from index.html)
+        const canteenMenus = {
+            "Captain Cuisine": [
+                { id: 1, name: "Captain's Special Platter", price: 350, category: "Main Course", description: "Signature dish with grilled chicken, vegetables and special sauce", available: true },
+                { id: 2, name: "Butter Chicken", price: 280, category: "Main Course", description: "Tender chicken in rich tomato and butter gravy", available: true },
+                { id: 3, name: "Veg Biryani", price: 180, category: "Main Course", description: "Fragrant basmati rice with mixed vegetables and spices", available: true },
+                { id: 4, name: "Paneer Tikka", price: 220, category: "Appetizers", description: "Cottage cheese cubes marinated and grilled to perfection", available: true },
+                { id: 5, name: "Chocolate Lava Cake", price: 120, category: "Desserts", description: "Warm chocolate cake with molten center, served with ice cream", available: true }
+            ],
+            "Utopia": [
+                { id: 6, name: "Caramel Frappuccino", price: 180, category: "Beverages", description: "Blended coffee with caramel syrup and whipped cream", available: true },
+                { id: 7, name: "Blueberry Muffin", price: 90, category: "Snacks", description: "Freshly baked muffin with blueberry chunks", available: true },
+                { id: 8, name: "Club Sandwich", price: 160, category: "Sandwiches", description: "Triple-decker sandwich with veggies and mayo", available: true },
+                { id: 9, name: "Iced Tea", price: 70, category: "Beverages", description: "Refreshing lemon iced tea", available: true },
+                { id: 10, name: "Chocolate Chip Cookies", price: 60, category: "Snacks", description: "Soft cookies loaded with chocolate chips", available: true }
+            ],
+            "Capitol": [
+                { id: 11, name: "Thali Meal", price: 200, category: "Main Course", description: "Complete meal with rice, roti, dal, two vegetables, raita and dessert", available: true },
+                { id: 12, name: "Masala Dosa", price: 120, category: "Breakfast", description: "Crispy fermented crepe with potato filling", available: true },
+                { id: 13, name: "Chole Bhature", price: 150, category: "Main Course", description: "Spicy chickpea curry with fried bread", available: true },
+                { id: 14, name: "Vegetable Pulao", price: 130, category: "Main Course", description: "Fragrant rice cooked with vegetables and spices", available: true },
+                { id: 15, name: "Rasmalai", price: 80, category: "Desserts", description: "Soft cottage cheese balls in sweetened condensed milk", available: true }
+            ],
+            "Size Zero": [
+                { id: 16, name: "Quinoa Salad Bowl", price: 200, category: "Salads", description: "Quinoa with mixed greens, cherry tomatoes, avocado and lemon dressing", available: true },
+                { id: 17, name: "Green Detox Smoothie", price: 150, category: "Beverages", description: "Blend of spinach, kale, apple and lemon", available: true },
+                { id: 18, name: "Grilled Chicken Breast", price: 250, category: "Main Course", description: "Lean chicken breast with steamed vegetables", available: true },
+                { id: 19, name: "Protein Shake", price: 180, category: "Beverages", description: "Whey protein shake with almond milk", available: true },
+                { id: 20, name: "Avocado Toast", price: 120, category: "Breakfast", description: "Whole wheat toast with smashed avocado and seeds", available: true }
+            ],
+            "Farki": [
+                { id: 21, name: "Pasta in White Sauce", price: 160, category: "Main Course", description: "Penne pasta in creamy white sauce with herbs", available: true },
+                { id: 22, name: "French Fries", price: 80, category: "Snacks", description: "Crispy golden fries with ketchup", available: true },
+                { id: 23, name: "Veg Burger", price: 100, category: "Burgers", description: "Burger with veg patty, lettuce and sauce", available: true },
+                { id: 24, name: "Cold Coffee", price: 110, category: "Beverages", description: "Chilled coffee with ice cream and chocolate syrup", available: true },
+                { id: 25, name: "Garlic Bread", price: 90, category: "Snacks", description: "Toasted bread with garlic butter and herbs", available: true }
+            ],
+            "Belgian Waffle": [
+                { id: 26, name: "Chocolate Belgian Waffle", price: 180, category: "Desserts", description: "Crispy waffle with chocolate sauce and whipped cream", available: true },
+                { id: 27, name: "Strawberry Waffle", price: 170, category: "Desserts", description: "Waffle topped with fresh strawberries and syrup", available: true },
+                { id: 28, name: "Nutella Waffle", price: 200, category: "Desserts", description: "Waffle generously topped with Nutella and nuts", available: true },
+                { id: 29, name: "Ice Cream Waffle", price: 190, category: "Desserts", description: "Waffle served with two scoops of ice cream", available: true },
+                { id: 30, name: "Plain Waffle with Maple Syrup", price: 120, category: "Desserts", description: "Classic waffle with pure maple syrup", available: true }
+            ],
+            "Cafe Hot Spot": [
+                { id: 31, name: "Hot Spot Burger", price: 150, category: "Burgers", description: "Signature burger with special sauce and crispy veggies", available: true },
+                { id: 32, name: "Cappuccino", price: 100, category: "Beverages", description: "Rich espresso with steamed milk and foam", available: true },
+                { id: 33, name: "Chicken Wrap", price: 160, category: "Sandwiches", description: "Grilled chicken with veggies in tortilla wrap", available: true },
+                { id: 34, name: "Hot Chocolate", price: 90, category: "Beverages", description: "Creamy hot chocolate with marshmallows", available: true },
+                { id: 35, name: "French Toast", price: 130, category: "Breakfast", description: "Golden brown toast with honey and fruits", available: true }
+            ],
+            "Cafe Appetito": [
+                { id: 36, name: "Margherita Pizza", price: 200, category: "Pizza", description: "Classic pizza with tomato sauce, mozzarella and basil", available: true },
+                { id: 37, name: "Pasta Alfredo", price: 180, category: "Pasta", description: "Fettuccine pasta in creamy Alfredo sauce", available: true },
+                { id: 38, name: "Garlic Mushroom", price: 140, category: "Appetizers", description: "Mushrooms sautéed in garlic butter", available: true },
+                { id: 39, name: "Tiramisu", price: 120, category: "Desserts", description: "Classic Italian dessert with coffee-soaked ladyfingers", available: true },
+                { id: 40, name: "Minestrone Soup", price: 100, category: "Soups", description: "Hearty Italian vegetable soup", available: true }
+            ],
+            "La Pinoz Pizza": [
+                { id: 41, name: "VEG TAMER", price: 275, category: "Pizza", description: "Special veg pizza with assorted toppings", available: true },
+                { id: 42, name: "Giant Pizza", price: 300, category: "Pizza", description: "Large pizza with generous toppings", available: true },
+                { id: 43, name: "Sweet Corns & Cheese", price: 350, category: "Pizza", description: "Pizza loaded with sweet corn and extra cheese", available: true },
+                { id: 44, name: "PREMIUM VEG", price: 195, category: "Pizza", description: "Premium vegetable pizza with exotic toppings", available: true },
+                { id: 45, name: "Cheese Dip Special", price: 445, category: "Pizza", description: "Cheese Dip with jalapeno and special toppings", available: true }
+            ],
+            "Chatoree": [
+                { id: 65, name: "Pani Puri", price: 60, category: "Street Food", description: "Crispy puris filled with spicy tangy water", available: true },
+                { id: 66, name: "Bhel Puri", price: 70, category: "Street Food", description: "Puffed rice with chutneys and vegetables", available: true },
+                { id: 67, name: "Samosa Chaat", price: 80, category: "Street Food", description: "Crumbled samosa with chutneys and yogurt", available: true },
+                { id: 68, name: "Dahi Puri", price: 75, category: "Street Food", description: "Crisp puris filled with yogurt and spices", available: true },
+                { id: 69, name: "Aloo Tikki Chaat", price: 85, category: "Street Food", description: "Potato patties with chutneys and spices", available: true }
+            ],
+            "Konaseema Ruchulu": [
+                { id: 70, name: "Andhra Chicken Curry", price: 280, category: "Main Course", description: "Spicy Andhra style chicken curry", available: true },
+                { id: 71, name: "Andhra Meals", price: 220, category: "Main Course", description: "Traditional Andhra meal with rice and curries", available: true },
+                { id: 72, name: "Gongura Chicken", price: 300, category: "Main Course", description: "Chicken cooked with sorrel leaves", available: true },
+                { id: 73, name: "Prawn Fry", price: 320, category: "Seafood", description: "Crispy fried prawns with Andhra spices", available: true },
+                { id: 74, name: "Rava Laddu", price: 50, category: "Desserts", description: "Sweet semolina balls", available: true }
+            ],
+            "Sri Rudra": [
+                { id: 75, name: "Masala Dosa", price: 100, category: "Breakfast", description: "Crispy dosa with potato masala", available: true },
+                { id: 76, name: "Idli Sambar", price: 70, category: "Breakfast", description: "Steamed rice cakes with lentil soup", available: true },
+                { id: 77, name: "Vada Sambar", price: 80, category: "Breakfast", description: "Fried lentil donut with sambar", available: true },
+                { id: 78, name: "Pongal", price: 90, category: "Breakfast", description: "Rice and lentil porridge with ghee", available: true },
+                { id: 79, name: "Filter Coffee", price: 40, category: "Beverages", description: "Traditional South Indian filter coffee", available: true }
+            ],
+            "Indian Salt": [
+                { id: 80, name: "Butter Chicken", price: 280, category: "Main Course", description: "Classic butter chicken with naan", available: true },
+                { id: 81, name: "Paneer Butter Masala", price: 240, category: "Main Course", description: "Cottage cheese in creamy tomato gravy", available: true },
+                { id: 82, name: "Dal Makhani", price: 180, category: "Main Course", description: "Creamy black lentils slow-cooked", available: true },
+                { id: 83, name: "Garlic Naan", price: 50, category: "Breads", description: "Soft bread with garlic butter", available: true },
+                { id: 84, name: "Gulab Jamun", price: 60, category: "Desserts", description: "Sweet milk balls in sugar syrup", available: true }
+            ],
+            "Rajwadi Gola": [
+                { id: 85, name: "Kala Khatta Gola", price: 60, category: "Beverages", description: "Crushed ice with black currant syrup", available: true },
+                { id: 86, name: "Rose Gola", price: 50, category: "Beverages", description: "Crushed ice with rose syrup", available: true },
+                { id: 87, name: "Mango Gola", price: 70, category: "Beverages", description: "Crushed ice with mango pulp", available: true },
+                { id: 88, name: "Chocolate Gola", price: 80, category: "Beverages", description: "Crushed ice with chocolate syrup", available: true },
+                { id: 89, name: "Mix Fruit Gola", price: 90, category: "Beverages", description: "Crushed ice with mixed fruit syrups", available: true }
+            ],
+            "Cafe Bollywood": [
+                { id: 90, name: "Bollywood Special Thali", price: 250, category: "Main Course", description: "Thali with Bollywood themed dishes", available: true },
+                { id: 91, name: "Tandoori Chicken", price: 280, category: "Main Course", description: "Chicken marinated in spices and grilled", available: true },
+                { id: 92, name: "Veg Manchurian", price: 180, category: "Main Course", description: "Vegetable balls in Chinese style sauce", available: true },
+                { id: 93, name: "Mango Lassi", price: 100, category: "Beverages", description: "Sweet yogurt drink with mango", available: true },
+                { id: 94, name: "Gajar Halwa", price: 120, category: "Desserts", description: "Carrot pudding with nuts", available: true }
+            ],
+            "Krishna Food Canteen": [
+                { id: 95, name: "Veg Combo Meal", price: 120, category: "Main Course", description: "Economical meal with rice, dal, sabzi and roti", available: true },
+                { id: 96, name: "Rajma Chawal", price: 100, category: "Main Course", description: "Kidney beans curry with rice", available: true },
+                { id: 97, name: "Aloo Paratha", price: 60, category: "Breads", description: "Flatbread stuffed with potato", available: true },
+                { id: 98, name: "Chole Kulche", price: 80, category: "Breakfast", description: "Spicy chickpeas with soft bread", available: true },
+                { id: 99, name: "Sweet Curd", price: 30, category: "Desserts", description: "Sweetened yogurt", available: true }
+            ]
+        };
+
+        // For other shops, provide empty arrays or sample data
+        const otherShops = ["Campus Brew", "Spice Junction", "Burger Junction", "Noodle House", "Dosa Point", "Juice Bar", "Sandwich Corner", "Ice Cream Parlor", "Momo Point", "Pav Bhaji Corner", "Salad Bar", "Pizza Palace", "Chaat Corner", "Healthy Bites", "Tandoori Hut", "Quick Bites", "Cold Cafe", "Mexican Corner", "Thai Kitchen", "Mediterranean Delight", "Korean Kitchen", "Sushi Bar", "Breakfast Club", "Tea House", "Waffle House", "Curry Corner", "Street Food Hub", "Healthy Juice", "Gourmet Kitchen", "Snack Bar", "South Indian Delight", "North Indian Feast", "Bakery Corner", "Fast Food Express", "Soup Kitchen", "Dessert Paradise"];
+        
+        otherShops.forEach(shop => {
+            if (!canteenMenus[shop]) {
+                canteenMenus[shop] = [];
+            }
+        });
+
+        const AVAILABLE_SHOPS = [
+            "Captain Cuisine", "Utopia", "Capitol", "Size Zero", "Farki", "Belgian Waffle", 
+            "Cafe Hot Spot", "Cafe Appetito", "La Pinoz Pizza", "Chatoree", "Konaseema Ruchulu", "Sri Rudra",
+            "Indian Salt", "Rajwadi Gola", "Cafe Bollywood", "Krishna Food Canteen",
+            "Campus Brew", "Spice Junction", "Burger Junction", "Noodle House",
+            "Dosa Point", "Juice Bar", "Sandwich Corner", "Ice Cream Parlor",
+            "Momo Point", "Pav Bhaji Corner", "Salad Bar", "Pizza Palace",
+            "Chaat Corner", "Healthy Bites", "Tandoori Hut", "Quick Bites",
+            "Cold Cafe", "Mexican Corner", "Thai Kitchen", "Mediterranean Delight",
+            "Korean Kitchen", "Sushi Bar", "Breakfast Club", "Tea House",
+            "Waffle House", "Curry Corner", "Street Food Hub", "Healthy Juice",
+            "Gourmet Kitchen", "Snack Bar", "South Indian Delight", "North Indian Feast",
+            "Bakery Corner", "Fast Food Express", "Soup Kitchen", "Dessert Paradise"
+        ];
+
+        let selectedShop = null;
+        let menuItems = [];
+
+        function initializeShop() {
+            // Check if user is logged in
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            if (!currentUser || currentUser.role !== 'shopkeeper') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Show shop selection if not selected
+            if (!selectedShop) {
+                showShopSelector();
+            } else {
+                loadShopMenu();
+            }
+        }
+
+        function showShopSelector() {
+            const selected = document.getElementById('selected-shop');
+            selected.textContent = 'Select Shop';
+            
+            const menuContainer = document.getElementById('menu-items');
+            menuContainer.innerHTML = `
+                <div style="padding: 30px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #333;">👋 Welcome! Please Select Your Shop</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                        ${AVAILABLE_SHOPS.map(shop => `
+                            <button onclick="selectShop('${shop}')" style="
+                                padding: 15px;
+                                border: 2px solid #ddd;
+                                background: white;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 4px 12px rgba(102,126,234,0.2)'" onmouseout="this.style.borderColor='#ddd'; this.style.boxShadow='none'">
+                                <i class="fas fa-store"></i><br>${shop}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Hide the form
+            document.querySelector('.add-item-form').style.display = 'none';
+        }
+
+        function selectShop(shopName) {
+            selectedShop = shopName;
+            localStorage.setItem('selectedShop', shopName);
+            document.getElementById('selected-shop').textContent = shopName;
+            loadShopMenu();
+            
+            // Automatically go to menu editing page
+            switchPage('menu');
+        }
+
+        function loadShopMenu() {
+            if (!selectedShop) return;
+
+            // First check if there's a custom menu (shopkeeper edits)
+            const shopMenuKey = `shop_menu_${selectedShop}`;
+            const customMenu = JSON.parse(localStorage.getItem(shopMenuKey) || '[]');
+
+            // If custom menu exists, use it; otherwise use default from canteenMenus
+            if (customMenu.length > 0) {
+                menuItems = customMenu;
+            } else {
+                // Load default items from canteenMenus
+                menuItems = canteenMenus[selectedShop] ? [...canteenMenus[selectedShop]] : [];
+            }
+
+            displayMenuItems();
+            updateStats();
+        }
+
+        function switchPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Remove active from all sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(pageName).classList.add('active');
+
+            // Add active to clicked sidebar item
+            if (event && event.target) {
+                event.target.closest('.sidebar-item')?.classList.add('active');
+            }
+
+            // Load data based on page
+            if (pageName === 'shops') {
+                displayAllShops();
+            } else if (pageName === 'menu') {
+                if (!selectedShop) {
+                    alert('Please select a shop first!');
+                    switchPage('shops');
+                    return;
+                }
+                displayMenuItems();
+            } else if (pageName === 'dashboard') {
+                if (!selectedShop) {
+                    alert('Please select a shop first!');
+                    switchPage('shops');
+                    return;
+                }
+                updateStats();
+            }
+        }
+
+        function displayAllShops() {
+            const grid = document.getElementById('shops-grid');
+            grid.innerHTML = AVAILABLE_SHOPS.map(shop => {
+                const shopMenuKey = `shop_menu_${shop}`;
+                const shopMenu = JSON.parse(localStorage.getItem(shopMenuKey) || '[]');
+                const hasMenu = shopMenu.length > 0;
+                
+                return `
+                    <button onclick="selectShop('${shop}')" style="
+                        padding: 25px;
+                        border: 2px solid #ddd;
+                        background: ${selectedShop === shop ? '#e8eaf6' : 'white'};
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                        text-align: center;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        min-height: 140px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                    " 
+                    onmouseover="this.style.borderColor='#667eea'; this.style.boxShadow='0 6px 20px rgba(102,126,234,0.3)'; this.style.transform='translateY(-5px)'; this.style.background='#f5f5ff'" 
+                    onmouseout="this.style.borderColor='#ddd'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'; this.style.transform='translateY(0)'; this.style.background='${selectedShop === shop ? '#e8eaf6' : 'white'}'">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">🏪</div>
+                        <div style="font-size: 1.05rem; margin-bottom: 10px; color: #333; line-height: 1.3;">${shop}</div>
+                        <div style="font-size: 0.9rem; color: ${hasMenu ? '#4caf50' : '#999'}; font-weight: 500;">
+                            ${hasMenu ? `✓ ${shopMenu.length} item${shopMenu.length > 1 ? 's' : ''}` : 'No items yet'}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function addMenuItem(event) {
+            event.preventDefault();
+
+            if (!selectedShop) {
+                alert('Please select a shop first!');
+                return;
+            }
+
+            const item = {
+                id: Date.now(),
+                name: document.getElementById('item-name').value,
+                price: parseInt(document.getElementById('item-price').value),
+                category: document.getElementById('item-category').value,
+                description: document.getElementById('item-description').value,
+                available: document.getElementById('item-available').checked
+            };
+
+            menuItems.push(item);
+            
+            // Save to localStorage with shop-specific key
+            const shopMenuKey = `shop_menu_${selectedShop}`;
+            localStorage.setItem(shopMenuKey, JSON.stringify(menuItems));
+
+            // Clear form
+            event.target.reset();
+            document.getElementById('item-available').checked = true;
+
+            // Refresh display
+            displayMenuItems();
+            updateStats();
+
+            alert(`✓ "${item.name}" added to ${selectedShop}'s menu!`);
+        }
+
+        function displayMenuItems() {
+            const container = document.getElementById('menu-items');
+
+            if (menuItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No menu items yet for <strong>${selectedShop}</strong></p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Add your first item →</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = menuItems.map(item => `
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">${item.name}</div>
+                        <div class="menu-item-details">
+                            <span><strong>Category:</strong> ${item.category}</span>
+                            <span><strong>Status:</strong> ${item.available ? '✓ Available' : '✗ Unavailable'}</span>
+                        </div>
+                        ${item.description ? `<div style="margin-top: 8px; font-size: 0.85rem; color: #999;">${item.description}</div>` : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="menu-item-price">₹${item.price}</div>
+                        <div class="menu-item-actions">
+                            <button class="btn-small btn-delete" onclick="deleteItem(${item.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                menuItems = menuItems.filter(item => item.id !== id);
+                const shopMenuKey = `shop_menu_${selectedShop}`;
+                localStorage.setItem(shopMenuKey, JSON.stringify(menuItems));
+                displayMenuItems();
+                updateStats();
+                alert('Item deleted!');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-items').textContent = menuItems.length;
+            document.getElementById('stat-orders').textContent = '0';
+            document.getElementById('stat-sales').textContent = '₹0';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            localStorage.removeItem('selectedShop');
+            selectedShop = null;
+            window.location.href = 'login.html';
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            selectedShop = localStorage.getItem('selectedShop');
+            if (selectedShop) {
+                document.getElementById('selected-shop').textContent = selectedShop;
+                loadShopMenu();
+                switchPage('dashboard');
+            } else {
+                displayAllShops();
+                switchPage('shops');
+            }
+            initializeShop();
+        });
+    </script>
+</body>
+</html>
