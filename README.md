@@ -1,342 +1,747 @@
-# 🎉 Complete System - Everything Connected!
+# 🍴 College Canteen Hub
 
-## ✅ What You Now Have
-
-A **fully integrated College Canteen Hub** with 3 connected roles:
+> A full-stack smart college canteen management and online food ordering system designed to reduce queues, simplify canteen operations, enable online ordering, and provide data-driven insights for canteen management.
 
 ---
 
-## 🚀 START HERE → Open These Files in Order
+## 📌 Project Overview
 
-### **1. LOGIN PAGE** 
-📄 File: `login.html`
-- Select your role (Customer, Shopkeeper, Admin)
-- Auto-filled demo credentials
-- Beautiful role-based UI
+**College Canteen Hub** is a web-based canteen management and food ordering platform developed as a major project.
 
-### **2. CUSTOMER EXPERIENCE**
-📄 File: `index.html`  
-- Browse all 56 campus canteens
-- See **shopkeeper's real-time edited menus** ✨
-- Add items to cart
-- Checkout
+The system connects **students, shopkeepers, and administrators** through a centralized platform.
 
-### **3. SHOPKEEPER DASHBOARD**
-📄 File: `shopkeeper.html`
-- **Select shop from 56 available canteens** ← KEY FEATURE
-- Edit menu in real-time
-- Add/Delete items instantly
-- See statistics
+Students can browse multiple campus canteens, view menus, add food items to their cart, provide delivery details, select their location, complete a demo payment, place orders, and track order status.
 
-### **4. ADMIN CONTROL PANEL**
-📄 File: `admin.html`
-- View all 56 canteens & their menus
-- See which shops have custom menus
-- Monitor all shopkeeper changes
-- Generate reports
+Shopkeepers can manage their canteen menus, view incoming orders, and update order statuses.
+
+Administrators can monitor canteens, users, menus, orders, analytics, food waste information, and system activity.
+
+The project also includes **Machine Learning-based food demand prediction** to support better food preparation and reduce food wastage.
 
 ---
 
-## 🔐 Demo Login Credentials
+## 🎯 Problem Statement
+
+Traditional college canteen systems often face:
+
+* Long queues during peak hours
+* Manual order processing
+* Difficulty managing multiple canteens
+* Lack of centralized menu management
+* Limited visibility of order status
+* Inefficient communication between students and shopkeepers
+* Food over-preparation and wastage
+* Lack of data-driven decision making
+* Manual tracking of canteen performance
+
+### 💡 Proposed Solution
+
+College Canteen Hub digitizes the complete canteen workflow by providing:
+
+**Student → Online Ordering → Payment Simulation → Order Processing → Order Tracking → Delivery**
+
+along with:
+
+**Shopkeeper → Menu Management → Order Management → Status Updates**
+
+and:
+
+**Admin → Monitoring → Analytics → Food Waste Analysis → Demand Prediction**
+
+---
+
+# ✨ Key Features
+
+## 👨‍🎓 Student / Customer
+
+* 🔐 User registration and login
+* 🏪 Browse multiple college canteens
+* 🔎 Search and filter canteens
+* 🍔 View canteen menus
+* 🛒 Add food items to cart
+* 💰 Automatic order total calculation
+* 📍 Select delivery location using an interactive map
+* 🗺️ TomTom-based map integration
+* 📌 Draggable delivery location marker
+* 📍 Use current browser location
+* 🏠 Reverse geocoding for readable addresses
+* 📱 Enter delivery phone number and details
+* 💳 Demo online payment
+* 🧾 Generate payment ID for demo transactions
+* 🎫 Automatic order token generation
+* 📦 Place orders
+* 🚚 Track orders
+* 🔄 View order status history
+* 🕒 View order timestamps
+* 💵 View payment information
+* 📋 View previous orders
+
+---
+
+## 👨‍🍳 Shopkeeper
+
+* 🔐 Shopkeeper authentication
+* 🏪 Select assigned canteen
+* 🍽️ View canteen menu
+* ➕ Add menu items
+* ✏️ Update menu items
+* 🗑️ Delete menu items
+* 📊 View order statistics
+* 📦 View incoming orders
+* 🎫 View customer order tokens
+* 🔄 Update order status
+* 🚚 Mark orders as out for delivery
+* ✅ Mark orders as delivered
+* ❌ Cancel orders
+* 📈 Monitor canteen activity
+
+### Order Status Flow
+
+```text
+Pending
+   ↓
+Confirmed
+   ↓
+Preparing
+   ↓
+Ready
+   ↓
+Out for Delivery
+   ↓
+Delivered
+```
+
+Orders can also be marked as:
+
+```text
+Cancelled
+```
+
+---
+
+## 👨‍💼 Administrator
+
+* 🔐 Admin authentication
+* 👥 Monitor registered users
+* 🏪 Monitor available canteens
+* 🍔 View canteen menus
+* 📦 Monitor orders
+* 📊 View order analytics
+* 📈 View system statistics
+* 🗑️ Monitor food waste analytics
+* 🤖 View demand prediction information
+* 📋 Generate/monitor reports
+* 🔍 Track system activity
+
+---
+
+# 🤖 Machine Learning
+
+The project includes a Machine Learning component for **food demand prediction**.
+
+### Purpose
+
+The demand prediction module helps estimate future food requirements using historical order information.
+
+This can help canteen operators:
+
+* Prepare appropriate quantities of food
+* Reduce over-preparation
+* Reduce food wastage
+* Avoid shortages
+* Understand demand patterns
+* Make better preparation decisions
+
+### ML Module
+
+```text
+ml/
+└── demand_prediction.py
+```
+
+Prediction output is stored in:
+
+```text
+data/
+└── demand_predictions.json
+```
+
+---
+
+# 📊 Analytics
+
+The system provides analytics for understanding canteen operations.
+
+### Analytics include:
+
+* Order statistics
+* User statistics
+* Food waste analytics
+* Order trends
+* Canteen activity
+* Demand prediction information
+
+The admin dashboard provides a centralized view of the available analytics.
+
+---
+
+# 💳 Demo Payment System
+
+The project uses a **free built-in demo payment simulation** instead of a real payment gateway.
+
+Supported demo methods:
+
+* UPI
+* Card
+* Net Banking
+* Cashless Demo
+
+### Important
+
+> This is a college project simulation. No real money is charged.
+
+A demo payment generates a unique payment ID such as:
+
+```text
+DEMO-PAY-XXXXXXXXXX-XXXX
+```
+
+The payment information is then stored with the order.
+
+No Razorpay business account or payment gateway credentials are required.
+
+---
+
+# 📍 Location & Map Integration
+
+The project uses **TomTom Maps** for delivery location functionality.
+
+### Features
+
+* Interactive map
+* Delivery location marker
+* Marker dragging
+* Map click location selection
+* Browser geolocation
+* Reverse geocoding
+* Automatic readable address detection
+* Latitude and longitude storage
+
+The selected location is saved with the order.
+
+---
+
+# 🔐 Authentication & Roles
+
+The system provides role-based authentication.
+
+### Available Roles
+
+| Role             | Main Responsibilities        |
+| ---------------- | ---------------------------- |
+| 👨‍🎓 Customer   | Browse, order, pay, track    |
+| 👨‍🍳 Shopkeeper | Manage menu and orders       |
+| 👨‍💼 Admin      | Monitor system and analytics |
+
+The backend provides authentication APIs for registration and login.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                    ┌──────────────────┐
+                    │     Customer     │
+                    └────────┬─────────┘
+                             │
+                    Browse / Order / Pay
+                             │
+                             ▼
+┌──────────────┐      ┌──────────────────┐
+│  Shopkeeper  │◄────►│  Express Server  │
+└──────────────┘      │    REST APIs     │
+                      └────────┬─────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+         Users Data       Orders Data       Menu Data
+              │                │                │
+              └────────────────┼────────────────┘
+                               │
+                     ┌─────────▼─────────┐
+                     │      Admin        │
+                     │    Dashboard      │
+                     └───────────────────┘
+
+                               │
+                               ▼
+                     ┌───────────────────┐
+                     │ Machine Learning  │
+                     │ Demand Prediction │
+                     └───────────────────┘
+
+                               │
+                               ▼
+                     ┌───────────────────┐
+                     │ Analytics & Food  │
+                     │ Waste Monitoring  │
+                     └───────────────────┘
+```
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+* HTML5
+* CSS3
+* JavaScript
+* Font Awesome
+* Leaflet.js
+* TomTom Maps
+
+## Backend
+
+* Node.js
+* Express.js
+* REST APIs
+* CORS
+* Body Parser
+
+## Data Storage
+
+* JSON-based persistence
+
+Main data files:
+
+```text
+data/
+├── users.json
+├── orders.json
+└── demand_predictions.json
+```
+
+## Machine Learning
+
+* Python
+* Machine Learning demand prediction
+* JSON prediction output
+
+## Development Tools
+
+* Visual Studio Code
+* Git
+* GitHub
+* Node.js
+* npm
+
+---
+
+# 📁 Project Structure
+
+```text
+college-canteen-hub-major/
+│
+├── data/
+│   ├── demand_predictions.json
+│   ├── orders.json
+│   └── users.json
+│
+├── images/
+│
+├── ml/
+│   └── demand_prediction.py
+│
+├── admin.html
+├── api-helper.js
+├── index.html
+├── login.html
+├── shopkeeper.html
+│
+├── script.js
+├── style.css
+├── server.js
+│
+├── package.json
+├── package-lock.json
+│
+├── .env.example
+├── .gitignore
+│
+├── API_DOCUMENTATION.md
+├── BACKEND_INTEGRATION.md
+├── BACKEND_SETUP.md
+├── CONNECTED_SYSTEM.md
+├── QUICKSTART.md
+├── QUICK_REFERENCE.md
+└── SYSTEM_ARCHITECTURE.md
+```
+
+---
+
+# 🚀 Installation & Setup
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/Megha-vsv/college-canteen-hub-major.git
+```
+
+## 2. Open the project
+
+```bash
+cd college-canteen-hub-major
+```
+
+## 3. Install dependencies
+
+```bash
+npm install
+```
+
+## 4. Start the server
+
+```bash
+npm start
+```
+
+If the project is configured for development with nodemon:
+
+```bash
+npm run dev
+```
+
+## 5. Open the application
+
+```text
+http://localhost:3000
+```
+
+Start from:
+
+```text
+http://localhost:3000/login.html
+```
+
+---
+
+# 🔑 Demo Accounts
+
+The project contains demo accounts for testing.
 
 ### Customer
-```
+
+```text
 Email: customer@college.com
-Password: password123
-File: login.html → Customer → Login → Browse index.html
+Password: customer123
 ```
 
-### Shopkeeper  
-```
+### Shopkeeper
+
+```text
 Email: shopkeeper@college.com
-Password: password123
-File: login.html → Shopkeeper → Login → Select Shop → Edit Menu
+Password: shopkeeper123
 ```
+
+Additional shopkeeper demo accounts are available for different canteens.
 
 ### Admin
-```
+
+```text
 Email: admin@college.com
-Password: password123
-File: login.html → Admin → Login → View All Canteens & Menus
+Password: admin123
+```
+
+> Demo credentials are intended only for local/project demonstration.
+
+---
+
+# 🔄 Complete User Flow
+
+## Customer Flow
+
+```text
+Login
+  ↓
+Browse Canteens
+  ↓
+Select Canteen
+  ↓
+View Menu
+  ↓
+Add Food to Cart
+  ↓
+Checkout
+  ↓
+Enter Delivery Details
+  ↓
+Select Location
+  ↓
+Demo Payment
+  ↓
+Order Created
+  ↓
+Token Generated
+  ↓
+Track Order
+  ↓
+Delivered
+```
+
+## Shopkeeper Flow
+
+```text
+Login
+  ↓
+Select Canteen
+  ↓
+Manage Menu
+  ↓
+View Orders
+  ↓
+Accept Order
+  ↓
+Preparing
+  ↓
+Ready
+  ↓
+Out for Delivery
+  ↓
+Delivered
+```
+
+## Admin Flow
+
+```text
+Login
+  ↓
+Admin Dashboard
+  ↓
+Monitor Users
+  ↓
+Monitor Canteens
+  ↓
+Monitor Menus
+  ↓
+Monitor Orders
+  ↓
+View Analytics
+  ↓
+Food Waste Analysis
+  ↓
+Demand Prediction
 ```
 
 ---
 
-## 🔄 Complete Flow Example
+# 🔌 Important API Endpoints
 
-### **FOLLOW THIS EXACT FLOW:**
+### Authentication
 
-#### **Part 1: Shopkeeper Adds Menu (5 minutes)**
-1. Open `login.html` in browser
-2. Click "Shopkeeper" role button
-3. Click Login (credentials auto-filled)
-4. You'll see "Select Shop"
-5. Click on **"Captain Cuisine"** (or any shop)
-6. Sidebar shows: "Captain Cuisine" selected
-7. Click "Edit Menu" tab
-8. Add items:
-   - Name: "Special Biryani"
-   - Price: "150"
-   - Category: "Main Course"
-   - Click "Add Item"
-9. ✅ Item appears in menu immediately!
-10. Add 2-3 more items if you want
-
-#### **Part 2: Customer Sees Menu (5 minutes)**
-1. **Open NEW browser tab** (important!)
-2. Go to `index.html`
-3. Search for "Captain Cuisine"
-4. Click "View Menu" button
-5. 🎉 **See shopkeeper's custom menu items!**
-6. Add items to cart
-7. Click cart → Checkout
-
-#### **Part 3: Admin Verifies (3 minutes)**
-1. Open `login.html` in another tab
-2. Click "Admin" role
-3. Click Login
-4. Click "Manage Canteens & Menus"
-5. Find "Captain Cuisine"
-6. Should show: "Menu Items: 4" (or however many you added)
-7. Click "View Menu"
-8. ✅ **See all items added by shopkeeper!**
-
----
-
-## 📊 System Architecture
-
+```text
+POST /api/auth/register
+POST /api/auth/login
 ```
-┌─ LOGIN.HTML
-│
-├─ CUSTOMER ROLE → INDEX.HTML
-│                 ├─ Browse canteens
-│                 ├─ See shopkeeper's menus ✨
-│                 └─ Add to cart
-│
-├─ SHOPKEEPER ROLE → SHOPKEEPER.HTML  
-│                   ├─ Select shop
-│                   ├─ Edit menu
-│                   ├─ Real-time updates
-│                   └─ Save to localStorage
-│
-└─ ADMIN ROLE → ADMIN.HTML
-              ├─ View all 56 shops
-              ├─ See menu status
-              ├─ Monitor changes
-              └─ Generate reports
+
+### Orders
+
+```text
+GET  /api/orders/:email
+POST /api/orders
+PUT  /api/orders/:orderId
+```
+
+### Demo Payment
+
+```text
+POST /api/payment/demo
+```
+
+### Menus
+
+```text
+GET  /api/menus
+POST /api/menus
+PUT  /api/menus/:id
+DELETE /api/menus/:id
+```
+
+### Analytics
+
+```text
+GET /api/analytics/orders
+GET /api/analytics/users
+GET /api/analytics/food-waste
+```
+
+For complete API information, see:
+
+```text
+API_DOCUMENTATION.md
 ```
 
 ---
 
-## 🎯 Key Connections
+# 🧪 Testing
 
-### **Connection 1: Shopkeeper → Customer**
+The major project can be tested through the following scenarios:
+
+### Test 1 — Authentication
+
+* Customer login
+* Shopkeeper login
+* Admin login
+* Registration
+* Invalid login handling
+
+### Test 2 — Menu Management
+
+* Shopkeeper adds item
+* Updates item
+* Deletes item
+* Customer views updated menu
+
+### Test 3 — Ordering
+
+* Add items to cart
+* Checkout
+* Enter delivery information
+* Generate order
+* Generate token
+
+### Test 4 — Demo Payment
+
+* Select payment method
+* Complete demo payment
+* Verify payment ID
+* Verify payment status
+
+### Test 5 — Order Tracking
+
+```text
+Pending → Confirmed → Preparing → Ready
+→ Out for Delivery → Delivered
 ```
-Shopkeeper adds "Biryani ₹150" 
-    ↓ (saves to localStorage)
-Customer sees updated menu ✅
+
+### Test 6 — Location
+
+* Select location on map
+* Drag marker
+* Use current location
+* Verify latitude/longitude
+* Verify address
+
+### Test 7 — Admin Analytics
+
+* Verify users
+* Verify orders
+* Verify food waste analytics
+* Verify demand prediction output
+
+---
+
+# 🔒 Security & Configuration
+
+Sensitive configuration should not be committed to GitHub.
+
+Use:
+
+```text
+.env
 ```
 
-### **Connection 2: Shopkeeper → Admin**
-```
-Shopkeeper edits "Captain Cuisine" menu
-    ↓ (stored with key: shop_menu_Captain Cuisine)
-Admin views menu & sees all items ✅
-```
+for environment-specific secrets.
 
-### **Connection 3: Customer → Shopkeeper**
-```
-Customer browses "Captain Cuisine"
-    ↓ (checks localStorage)
-Sees latest menu from shopkeeper ✅
+A sample configuration is provided in:
+
+```text
+.env.example
 ```
 
----
-
-## 🏪 Available Shops (56 Total)
-
-**Main Shops:**
-- Captain Cuisine
-- Utopia
-- Capitol
-- Size Zero
-- Farki
-- Belgian Waffle
-- Cafe Hot Spot
-- Cafe Appetito
-- La Pinoz Pizza
-- Chatoree
-- Konaseema Ruchulu
-- Sri Rudra
-
-**Plus 44 More:**
-Including: Indian Salt, Campus Brew, Spice Junction, Burger Junction, Noodle House, Dosa Point, Juice Bar, and many more!
+Never commit real API keys or passwords to a public repository.
 
 ---
 
-## ✨ Amazing Features
+# ⚠️ Project Limitations
 
-### For Shopkeepers:
-- ✅ Select from 56 campus shops
-- ✅ Edit menu in real-time
-- ✅ Add/Delete items instantly
-- ✅ See menu count statistics
-- ✅ All changes saved automatically
+This project is designed as an academic major-project prototype.
 
-### For Customers:
-- ✅ Browse all 56 canteens
-- ✅ See **live updated menus** from shopkeepers
-- ✅ Add items to cart
-- ✅ View detailed product info
-- ✅ Search and filter
+Current limitations include:
 
-### For Admins:
-- ✅ View all 56 canteens
-- ✅ Check menu status for each shop
-- ✅ View detailed menu items
-- ✅ Monitor all shopkeeper changes
-- ✅ Generate comprehensive reports
+* JSON files are used for data persistence instead of a production database.
+* Payment functionality is a demo simulation and does not process real money.
+* Order tracking is application-based rather than GPS vehicle tracking.
+* Machine Learning predictions are intended for academic demonstration.
+* Production deployment would require stronger authentication, database infrastructure, payment gateway integration, and additional security controls.
 
 ---
 
-## 🔧 Technical Details
+# 🔮 Future Enhancements
 
-### Data Storage
-- Uses **localStorage** (browser storage)
-- Key format: `shop_menu_${shopName}`
-- Example: `shop_menu_Captain Cuisine`
-- Data persists across refreshes
-- No backend needed
+Possible future improvements include:
 
-### Real-Time Updates
-- Customer page reads latest menu from storage
-- Admin page reads all stored menus
-- Updates visible immediately
-- No need to refresh
-
-### Scalability
-- Supports 56+ shops
-- Each shop has independent menu
-- No conflicts between shops
-- Efficient storage
+* Real payment gateway integration
+* MySQL/MongoDB database
+* Real-time WebSocket notifications
+* Delivery partner module
+* Live delivery vehicle tracking
+* Push notifications
+* Email/SMS notifications
+* Advanced demand forecasting
+* Inventory management
+* Automated food-waste recommendations
+* Mobile application
+* Cloud database
+* Production-grade authentication and authorization
 
 ---
 
-## 🎓 How to Test Everything
+# 🎓 Academic Project
 
-### Test 1: Basic Flow (15 min)
-1. Shopkeeper adds 1 item to "Captain Cuisine"
-2. Customer searches and views menu
-3. Customer sees the item ✓
-
-### Test 2: Multiple Shops (15 min)
-1. Shopkeeper adds menu to "Utopia"
-2. Switch to customer
-3. Add items from "Captain Cuisine"
-4. Add items from "Utopia"  
-5. See both in cart ✓
-
-### Test 3: Admin Overview (10 min)
-1. Admin views "Canteens & Menus"
-2. See all 56 shops listed
-3. See which have custom menus
-4. Click "View Menu" on 2-3 shops
-5. Verify items appear ✓
-
-### Test 4: Real-Time Sync (10 min)
-1. Open shopkeeper in Tab 1
-2. Open customer in Tab 2
-3. Shopkeeper adds item
-4. Customer refreshes
-5. See new item immediately ✓
+**Project:** College Canteen Hub
+**Type:** Major Project
+**Domain:** Web Development + Machine Learning + Data Analytics
+**Architecture:** Full-Stack Web Application
+**Backend:** Node.js + Express.js
+**Frontend:** HTML + CSS + JavaScript
+**ML:** Python
+**Maps:** TomTom Maps + Leaflet.js
+**Payment:** Demo Payment Simulation
+**Repository:** `college-canteen-hub-major`
 
 ---
 
-## 📝 Files You Have
+# 👩‍💻 Developer
 
-| File | Purpose |
-|------|---------|
-| `login.html` | Role selection & login |
-| `index.html` | Customer shopping (with login button) |
-| `shopkeeper.html` | Menu editor with shop selection |
-| `admin.html` | Monitor all menus & shops |
-| `script.js` | Customer page logic (reads menus from localStorage) |
-| `style.css` | All styling |
-| `QUICKSTART.md` | Quick start guide |
-| `CONNECTED_SYSTEM.md` | Complete documentation |
+**Megha Vasava**
+
+B.Tech – Computer Science Engineering
+Parul Institute of Technology, Parul University
 
 ---
 
-## ⚡ Most Important Features
+## ⭐ Project Highlights
 
-### 🎯 THE CORE CONNECTION
-
-**Before:**
-- Menus were static
-- No real-time updates
-- Shopkeepers couldn't edit
-- Admin had no visibility
-
-**After:**
-- Shopkeepers edit menus in real-time ✅
-- Customers see live updates ✅
-- Admin monitors everything ✅
-- All 3 roles see the same data ✅
-- **FULLY CONNECTED** ✅
-
----
-
-## 🚀 Next Steps
-
-1. **Right Now:**
-   - Open `login.html`
-   - Test all 3 roles
-   - Follow the complete flow above
-
-2. **Then:**
-   - Add multiple menu items
-   - Try different shops
-   - Test real-time updates
-
-3. **Finally:**
-   - Read `CONNECTED_SYSTEM.md` for details
-   - Customize the system as needed
-   - Share with others!
-
----
-
-## 🎉 YOU ARE ALL SET!
-
-Everything is:
-✅ Connected
-✅ Working  
-✅ Real-time
-✅ Integrated
-
-**Open `login.html` and start exploring!** 🚀
-
----
-
-## 📞 Quick Reference
-
-```
-To START: Open login.html
-
-To LOGIN:
-- Customer: customer@college.com / password123
-- Shopkeeper: shopkeeper@college.com / password123
-- Admin: admin@college.com / password123
-
-To TEST:
-1. Shopkeeper edits menu
-2. Customer sees updated menu
-3. Admin views all changes
-
-That's it! 🎊
+```text
+🔐 Role-Based Authentication
+🏪 Multiple Canteens
+🍔 Online Food Ordering
+🛒 Shopping Cart
+📍 Location & Map Integration
+💳 Demo Payment
+🎫 Token-Based Ordering
+🚚 Order Tracking
+📦 Order Status Management
+📊 Admin Analytics
+🗑️ Food Waste Analytics
+🤖 ML Demand Prediction
+🔗 Connected Customer–Shopkeeper–Admin System
 ```
 
 ---
 
-**Everything is connected and ready to go!**
+## 📜 License
 
-🌟 Enjoy your fully integrated College Canteen Hub! 🌟
+This project is developed for **academic and educational purposes**.
