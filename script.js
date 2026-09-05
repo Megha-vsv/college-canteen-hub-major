@@ -1004,24 +1004,719 @@ function clearCart() {
     }
 }
 
-function checkout() {
-    if (cart.length === 0) {
-        alert('Your cart is empty! Add items before checkout.');
+// ============================================
+// CHECKOUT
+// ============================================
+
+let selectedDeliveryLatitude = null;
+let selectedDeliveryLongitude = null;
+
+let selectedDemoPaymentMethod = 'UPI';
+
+
+// ============================================
+// OPEN DEMO PAYMENT
+// ============================================
+
+function openDemoPayment(totalPrice) {
+
+    const modal =
+        document.getElementById('demo-payment-modal');
+
+    const amount =
+        document.getElementById('demo-payment-amount');
+
+    const confirmButton =
+        document.getElementById('confirm-demo-payment');
+
+    if (!modal) return;
+
+    if (amount) {
+        amount.textContent =
+            `₹${totalPrice.toFixed(2)}`;
+    }
+
+    if (confirmButton) {
+        confirmButton.textContent =
+            `Pay ₹${totalPrice.toFixed(2)} & Confirm Order`;
+    }
+
+    modal.dataset.total =
+        String(totalPrice);
+
+    modal.style.display = 'flex';
+}
+
+
+// ============================================
+// CLOSE DEMO PAYMENT
+// ============================================
+
+function closeDemoPayment() {
+
+    const modal =
+        document.getElementById('demo-payment-modal');
+
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+
+// ============================================
+// COMPLETE DEMO PAYMENT
+// ============================================
+
+async function completeDemoPayment() {
+
+    const modal =
+        document.getElementById('demo-payment-modal');
+
+    if (!modal) return;
+
+    const totalPrice =
+        Number(modal.dataset.total || 0);
+
+    const confirmButton =
+        document.getElementById('confirm-demo-payment');
+
+    if (!totalPrice || totalPrice <= 0) {
+        alert('Invalid order amount.');
         return;
     }
-    
-    const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const orderSummary = cart.map(item => 
-        `${item.quantity}x ${item.name} (${item.canteen}) - ₹${item.price * item.quantity}`
-    ).join('\n');
-    
-    alert(`Order Summary:\n\n${orderSummary}\n\nTotal: ₹${totalPrice}\n\nYour order has been placed! It will be ready for pickup in 20-30 minutes.`);
-    
-    // Clear cart after successful checkout
-    cart = [];
-    updateCart();
-    cartModal.style.display = 'none';
+
+    // ----------------------------------------
+    // Get current user
+    // ----------------------------------------
+
+    const user =
+        JSON.parse(
+            sessionStorage.getItem('currentUser') ||
+            localStorage.getItem('user') ||
+            'null'
+        );
+
+    if (!user) {
+
+        alert(
+            'Please login before placing an order.'
+        );
+
+        window.location.href =
+            'login.html';
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Get delivery details
+    // ----------------------------------------
+
+    const deliveryName =
+        document
+            .getElementById('delivery-name')
+            ?.value
+            .trim();
+
+    const deliveryPhone =
+        document
+            .getElementById('delivery-phone')
+            ?.value
+            .trim();
+
+    const deliveryAddress =
+        document
+            .getElementById('delivery-address')
+            ?.value
+            .trim();
+
+
+    // ----------------------------------------
+    // Validate delivery details
+    // ----------------------------------------
+
+    if (
+        !deliveryName ||
+        !deliveryPhone ||
+        !deliveryAddress
+    ) {
+
+        alert(
+            'Please enter your name, phone number, and delivery address.'
+        );
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Validate cart
+    // ----------------------------------------
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+
+        alert(
+            'Your cart is empty!'
+        );
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Disable payment button
+    // ----------------------------------------
+
+    if (confirmButton) {
+
+        confirmButton.disabled = true;
+
+        confirmButton.textContent =
+            'Processing demo payment...';
+    }
+
+
+    try {
+
+        // ====================================
+        // STEP 1: DEMO PAYMENT
+        // ====================================
+
+        const paymentResponse =
+            await fetch(
+                '/api/payment/demo',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        amount:
+                            totalPrice,
+
+                        method:
+                            selectedDemoPaymentMethod
+                    })
+                }
+            );
+
+
+        const paymentData =
+            await paymentResponse.json();
+
+
+        if (
+            !paymentResponse.ok ||
+            !paymentData.success
+        ) {
+
+            throw new Error(
+                paymentData.message ||
+                'Demo payment failed'
+            );
+        }
+
+
+        const payment =
+            paymentData.payment;
+
+
+        // ====================================
+        // STEP 2: CREATE ORDER
+        // ====================================
+
+        const orderResponse =
+            await fetch(
+                '/api/orders',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        // --------------------
+                        // Customer
+                        // --------------------
+
+                        userId:
+                            user.id ||
+                            localStorage.getItem(
+                                'userId'
+                            ),
+
+                        email:
+                            user.email ||
+                            localStorage.getItem(
+                                'userEmail'
+                            ),
+
+                        customerName:
+                            deliveryName,
+
+                        phone:
+                            deliveryPhone,
+
+
+                        // --------------------
+                        // Food order
+                        // --------------------
+
+                        items:
+                            cart,
+
+                        totalPrice:
+                            totalPrice,
+
+
+                        // --------------------
+                        // Delivery
+                        // --------------------
+
+                        deliveryAddress:
+                            deliveryAddress,
+
+                        latitude:
+                            selectedDeliveryLatitude,
+
+                        longitude:
+                            selectedDeliveryLongitude,
+
+
+                        // --------------------
+                        // Payment
+                        // --------------------
+
+                        paymentStatus:
+                            'paid',
+
+                        paymentId:
+                            payment.paymentId,
+
+                        razorpayOrderId:
+                            null,
+
+                        paymentMethod:
+                            payment.method,
+
+
+                        // --------------------
+                        // Order status
+                        // --------------------
+
+                        status:
+                            'pending'
+                    })
+                }
+            );
+
+
+        const orderData =
+            await orderResponse.json();
+
+
+        if (
+            !orderResponse.ok ||
+            !orderData.success
+        ) {
+
+            throw new Error(
+                orderData.message ||
+                'Order creation failed'
+            );
+        }
+
+
+        // ====================================
+        // STEP 3: ORDER SUCCESS
+        // ====================================
+
+        const order =
+            orderData.order;
+
+
+        const orderSummary =
+            cart
+                .map(
+                    item =>
+                        `${item.quantity}x ${item.name} (${item.canteen}) - ₹${item.price * item.quantity}`
+                )
+                .join('\n');
+
+
+        alert(
+            `Demo payment successful!\n\n` +
+
+            `${orderSummary}\n\n` +
+
+            `Total: ₹${totalPrice.toFixed(2)}\n\n` +
+
+            `🎟️ Token: ${order.token || 'N/A'}\n` +
+
+            `🧾 Order ID: ${order.orderId}\n` +
+
+            `💳 Demo Payment ID: ${payment.paymentId}\n` +
+
+            `📱 Method: ${payment.method}\n\n` +
+
+            `Your order has been placed successfully!`
+        );
+
+
+        // ====================================
+        // STEP 4: CLEAR CART
+        // ====================================
+
+        cart = [];
+
+        updateCart();
+
+        closeDemoPayment();
+
+
+        if (cartModal) {
+
+            cartModal.style.display =
+                'none';
+        }
+
+
+        // ====================================
+        // RESET DELIVERY COORDINATES
+        // ====================================
+
+        selectedDeliveryLatitude =
+            null;
+
+        selectedDeliveryLongitude =
+            null;
+
+
+        // ====================================
+        // OPTIONAL: REFRESH MY ORDERS
+        // ====================================
+
+        if (
+            typeof trackMyOrders ===
+            'function'
+        ) {
+
+            trackMyOrders();
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            'Demo payment/order error:',
+            error
+        );
+
+
+        alert(
+            error.message ||
+            'Unable to complete demo payment.'
+        );
+
+    }
+
+    finally {
+
+        if (confirmButton) {
+
+            confirmButton.disabled =
+                false;
+
+            confirmButton.textContent =
+                `Pay ₹${totalPrice.toFixed(2)} & Confirm Order`;
+        }
+    }
 }
+
+
+// ============================================
+// CHECKOUT
+// ============================================
+
+async function checkout() {
+
+    // ----------------------------------------
+    // Check cart
+    // ----------------------------------------
+
+    if (
+        !Array.isArray(cart) ||
+        cart.length === 0
+    ) {
+
+        alert(
+            'Your cart is empty! Add items before checkout.'
+        );
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Check login
+    // ----------------------------------------
+
+    const user =
+        JSON.parse(
+            sessionStorage.getItem('currentUser') ||
+            localStorage.getItem('user') ||
+            'null'
+        );
+
+
+    if (
+        !user ||
+        user.role !== 'customer'
+    ) {
+
+        alert(
+            'Please login as a customer before placing an order.'
+        );
+
+        window.location.href =
+            'login.html';
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Get delivery details
+    // ----------------------------------------
+
+    const deliveryName =
+        document
+            .getElementById('delivery-name')
+            ?.value
+            .trim();
+
+    const deliveryPhone =
+        document
+            .getElementById('delivery-phone')
+            ?.value
+            .trim();
+
+    const deliveryAddress =
+        document
+            .getElementById('delivery-address')
+            ?.value
+            .trim();
+
+
+    // ----------------------------------------
+    // Validate delivery details
+    // ----------------------------------------
+
+    if (
+        !deliveryName ||
+        !deliveryPhone ||
+        !deliveryAddress
+    ) {
+
+        alert(
+            'Please enter your name, phone number, and delivery address.'
+        );
+
+        return;
+    }
+
+
+    // ----------------------------------------
+    // Calculate total
+    // ----------------------------------------
+
+    const totalPrice =
+        cart.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                (
+                    item.price *
+                    item.quantity
+                ),
+            0
+        );
+
+
+    // ----------------------------------------
+    // Open demo payment
+    // ----------------------------------------
+
+    openDemoPayment(
+        totalPrice
+    );
+}
+
+// ============================================
+// TOMTOM DELIVERY LOCATION MAP
+// ============================================
+// Paste your TomTom API key between the quotes below.
+// Keep the key domain-whitelisted in TomTom MyTomTom.
+const TOMTOM_API_KEY = 'qPqucP4LHmq9Sn3KwBL6VOU0xpsbKKQU';
+
+let deliveryMap = null;
+let deliveryMarker = null;
+
+const DEFAULT_DELIVERY_LOCATION = [22.322, 73.168]; // Vadodara / Parul University area
+
+function isTomTomConfigured() {
+    return TOMTOM_API_KEY && !TOMTOM_API_KEY.includes('YOUR_');
+}
+
+function updateDeliveryAddressFromCoordinates(lat, lng, statusText = 'Location selected') {
+    const status = document.getElementById('location-status');
+    const address = document.getElementById('delivery-address');
+
+    if (status) status.textContent = statusText;
+
+    if (address) {
+        address.value = `Location (${lat.toFixed(6)}, ${lng.toFixed(6)})`;
+    }
+
+    if (!isTomTomConfigured()) return;
+
+    const url = `https://api.tomtom.com/search/2/reverseGeocode/${lat},${lng}.json?key=${encodeURIComponent(TOMTOM_API_KEY)}&language=en-US&view=IN`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`TomTom reverse geocoding failed (${response.status})`);
+            return response.json();
+        })
+        .then(data => {
+            const result = data?.addresses?.[0]?.address;
+            if (result?.freeformAddress && address) {
+                address.value = result.freeformAddress;
+            }
+            if (status) status.textContent = 'Location selected';
+        })
+        .catch(error => {
+            console.warn('TomTom reverse geocoding:', error.message);
+            if (status) status.textContent = 'Location selected';
+        });
+}
+
+function setDeliveryLocation(lat, lng, zoom = 16) {
+
+    selectedDeliveryLatitude = lat;
+    selectedDeliveryLongitude = lng;
+    if (!deliveryMap || !deliveryMarker) return;
+
+    const position = [lat, lng];
+    deliveryMarker.setLatLng(position);
+    deliveryMap.setView(position, zoom);
+    updateDeliveryAddressFromCoordinates(lat, lng);
+}
+
+function initDeliveryMap() {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
+
+    if (!window.L) {
+        mapElement.innerHTML = '<div style="padding:20px;text-align:center;">Map library could not be loaded.</div>';
+        return;
+    }
+
+    if (!isTomTomConfigured()) {
+        mapElement.innerHTML = '<div style="padding:20px;text-align:center;">Add your TomTom API key in script.js to display the map.</div>';
+        return;
+    }
+
+    if (deliveryMap) {
+        deliveryMap.invalidateSize();
+        return;
+    }
+
+    deliveryMap = L.map(mapElement).setView(DEFAULT_DELIVERY_LOCATION, 15);
+
+    const tomtomSubdomains = ['a', 'b', 'c', 'd'];
+    const tomtomTileUrl = `https://{s}.api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${encodeURIComponent(TOMTOM_API_KEY)}&view=IN`;
+
+    L.tileLayer(tomtomTileUrl, {
+        subdomains: tomtomSubdomains,
+        maxZoom: 19,
+        attribution: '&copy; TomTom'
+    }).addTo(deliveryMap);
+
+    deliveryMarker = L.marker(DEFAULT_DELIVERY_LOCATION, { draggable: true })
+        .addTo(deliveryMap)
+        .bindPopup('Delivery location')
+        .openPopup();
+
+    deliveryMarker.on('dragend', () => {
+        const position = deliveryMarker.getLatLng();
+        updateDeliveryAddressFromCoordinates(position.lat, position.lng);
+    });
+
+    deliveryMap.on('click', event => {
+        setDeliveryLocation(event.latlng.lat, event.latlng.lng);
+    });
+
+    updateDeliveryAddressFromCoordinates(DEFAULT_DELIVERY_LOCATION[0], DEFAULT_DELIVERY_LOCATION[1], 'Choose your delivery location');
+}
+
+function useCurrentLocation() {
+    const status = document.getElementById('location-status');
+
+    if (!navigator.geolocation) {
+        if (status) status.textContent = 'Location is not supported by this browser';
+        return;
+    }
+
+    if (!isTomTomConfigured()) {
+        if (status) status.textContent = 'Add TomTom API key first';
+        return;
+    }
+
+    if (status) status.textContent = 'Getting your location...';
+
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            setDeliveryLocation(lat, lng, 17);
+            if (status) status.textContent = 'Current location selected';
+        },
+        error => {
+            console.warn('Geolocation error:', error);
+            if (status) status.textContent = 'Unable to get current location';
+            alert('Please allow location access in your browser and try again.');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+}
+
+window.addEventListener('load', () => {
+    const locationButton = document.getElementById('use-location-btn');
+    if (locationButton) locationButton.addEventListener('click', useCurrentLocation);
+
+    const cartIconElement = document.getElementById('cart-icon');
+    if (cartIconElement) {
+        cartIconElement.addEventListener('click', () => {
+            setTimeout(() => {
+                initDeliveryMap();
+                if (deliveryMap) deliveryMap.invalidateSize();
+            }, 150);
+        });
+    }
+
+    initDeliveryMap();
+});
 
 function showToast(message) {
     toastMessage.textContent = message;
@@ -1031,3 +1726,1357 @@ function showToast(message) {
         toast.classList.remove('show');
     }, 3000);
 }
+// ============================================
+// FOOD RECOMMENDATION SYSTEM
+// ============================================
+
+async function loadFoodRecommendations() {
+
+    try {
+
+        // Get all orders
+        const response = await fetch('/api/orders');
+
+        const data = await response.json();
+
+        if (!data.success) {
+            return;
+        }
+
+        const orders = data.orders || [];
+
+        // Get logged-in student's email
+        const userEmail =
+            localStorage.getItem('userEmail');
+
+        // Get student's previous orders
+        const userOrders = userEmail
+            ? orders.filter(
+                order => order.email === userEmail
+            )
+            : [];
+
+        // Count food purchases
+        const itemFrequency = {};
+
+        userOrders.forEach(order => {
+
+            if (!Array.isArray(order.items)) {
+                return;
+            }
+
+            order.items.forEach(item => {
+
+                const name = item.name;
+
+                const quantity =
+                    Number(item.quantity || 1);
+
+                if (!itemFrequency[name]) {
+                    itemFrequency[name] = 0;
+                }
+
+                itemFrequency[name] += quantity;
+            });
+        });
+
+        // ----------------------------------------
+        // FIND RECOMMENDED ITEMS
+        // ----------------------------------------
+
+        let recommendations = [];
+
+        // First preference:
+        // Previously ordered food
+        if (Object.keys(itemFrequency).length > 0) {
+
+            recommendations =
+                Object.entries(itemFrequency)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(([name, quantity]) => {
+
+                        let foundItem = null;
+                        let foundCanteen = null;
+
+                        for (const canteenName in canteenMenus) {
+
+                            const menu =
+                                canteenMenus[canteenName] || [];
+
+                            const item =
+                                menu.find(
+                                    menuItem =>
+                                        menuItem.name === name
+                                );
+
+                            if (item) {
+
+                                foundItem = item;
+                                foundCanteen = canteenName;
+
+                                break;
+                            }
+                        }
+
+                        if (foundItem) {
+
+                            return {
+                                ...foundItem,
+                                canteen: foundCanteen,
+                                reason:
+                                    'Based on your previous orders'
+                            };
+                        }
+
+                        return null;
+                    })
+                    .filter(item => item !== null);
+        }
+
+        // ----------------------------------------
+        // IF NO HISTORY, USE POPULAR FOOD
+        // ----------------------------------------
+
+        if (recommendations.length === 0) {
+
+            const analyticsResponse =
+                await fetch('/api/analytics/orders');
+
+            const analyticsData =
+                await analyticsResponse.json();
+
+            if (
+                analyticsData.success &&
+                analyticsData.stats &&
+                analyticsData.stats.topItems
+            ) {
+
+                recommendations =
+                    analyticsData.stats.topItems
+                        .slice(0, 3)
+                        .map(topItem => {
+
+                            let foundItem = null;
+                            let foundCanteen = null;
+
+                            for (
+                                const canteenName
+                                in canteenMenus
+                            ) {
+
+                                const menu =
+                                    canteenMenus[canteenName] || [];
+
+                                const item =
+                                    menu.find(
+                                        menuItem =>
+                                            menuItem.name ===
+                                            topItem.name
+                                    );
+
+                                if (item) {
+
+                                    foundItem = item;
+                                    foundCanteen =
+                                        canteenName;
+
+                                    break;
+                                }
+                            }
+
+                            if (foundItem) {
+
+                                return {
+                                    ...foundItem,
+                                    canteen:
+                                        foundCanteen,
+                                    reason:
+                                        'Popular among students'
+                                };
+                            }
+
+                            return null;
+                        })
+                        .filter(
+                            item => item !== null
+                        );
+            }
+        }
+
+        // ----------------------------------------
+        // DISPLAY RECOMMENDATIONS
+        // ----------------------------------------
+
+        displayFoodRecommendations(
+            recommendations
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Recommendation Error:',
+            error
+        );
+    }
+}
+
+
+// ============================================
+// DISPLAY RECOMMENDATIONS
+// ============================================
+
+function displayFoodRecommendations(items) {
+
+    // Remove old recommendation section
+    const oldSection =
+        document.getElementById(
+            'food-recommendation-section'
+        );
+
+    if (oldSection) {
+        oldSection.remove();
+    }
+
+    if (
+        !items ||
+        items.length === 0
+    ) {
+        return;
+    }
+
+    const section =
+        document.createElement('section');
+
+    section.id =
+        'food-recommendation-section';
+
+    section.style.cssText = `
+        margin: 25px auto;
+        max-width: 1200px;
+        padding: 25px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    `;
+
+    section.innerHTML = `
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:20px;
+        ">
+
+            <div>
+
+                <h2 style="
+                    margin:0;
+                    color:#222;
+                ">
+
+                    <i class="fas fa-lightbulb"
+                       style="color:#667eea;">
+                    </i>
+
+                    Recommended For You
+
+                </h2>
+
+                <p style="
+                    margin:6px 0 0;
+                    color:#777;
+                    font-size:14px;
+                ">
+
+                    Food suggestions based on your
+                    ordering history and popular items.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div style="
+            display:grid;
+            grid-template-columns:
+                repeat(auto-fit,minmax(220px,1fr));
+            gap:18px;
+        ">
+
+            ${items.map(item => `
+
+                <div style="
+                    border:1px solid #eee;
+                    border-radius:12px;
+                    padding:18px;
+                    background:#fafbff;
+                ">
+
+                    <div style="
+                        font-size:18px;
+                        font-weight:700;
+                        margin-bottom:8px;
+                    ">
+
+                        ${item.name}
+
+                    </div>
+
+                    <div style="
+                        color:#555;
+                        font-size:14px;
+                        margin-bottom:6px;
+                    ">
+
+                        <i class="fas fa-store"></i>
+                        ${item.canteen || 'Canteen'}
+
+                    </div>
+
+                    <div style="
+                        font-size:17px;
+                        font-weight:700;
+                        margin-bottom:10px;
+                    ">
+
+                        ₹${item.price}
+
+                    </div>
+
+                    <div style="
+                        color:#667eea;
+                        font-size:13px;
+                        margin-bottom:15px;
+                    ">
+
+                        <i class="fas fa-star"></i>
+                        ${item.reason}
+
+                    </div>
+
+                    <button
+                        onclick="showCanteenMenu('${String(item.canteen || '').replace(/'/g, "\\'")}')"
+                        style="
+                            width:100%;
+                            padding:10px;
+                            border:none;
+                            border-radius:8px;
+                            background:#667eea;
+                            color:white;
+                            cursor:pointer;
+                            font-weight:600;
+                        "
+                    >
+
+                        <i class="fas fa-utensils"></i>
+                        View Menu
+
+                    </button>
+
+                </div>
+
+            `).join('')}
+
+        </div>
+    `;
+
+    // Put recommendation section above canteen list
+    if (canteenContainer) {
+
+        canteenContainer.parentNode.insertBefore(
+            section,
+            canteenContainer
+        );
+
+    } else {
+
+        document.body.prepend(section);
+
+    }
+}
+
+
+// ============================================
+// DEMO PAYMENT MODAL EVENTS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function () {
+    const closeButton = document.getElementById('close-demo-payment');
+    const confirmButton = document.getElementById('confirm-demo-payment');
+    const modal = document.getElementById('demo-payment-modal');
+    const methodButtons = document.querySelectorAll('.demo-pay-method');
+
+    if (closeButton) closeButton.addEventListener('click', closeDemoPayment);
+    if (confirmButton) confirmButton.addEventListener('click', completeDemoPayment);
+
+    methodButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            selectedDemoPaymentMethod = this.dataset.method || 'UPI';
+            methodButtons.forEach(item => {
+                item.style.border = '1px solid #ddd';
+                item.style.background = '#fff';
+                item.style.color = '#333';
+            });
+            this.style.border = '2px solid #667eea';
+            this.style.background = '#eef2ff';
+            this.style.color = '#4f46e5';
+        });
+    });
+
+    if (modal) {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) closeDemoPayment();
+        });
+    }
+});
+
+// ============================================
+// START RECOMMENDATION SYSTEM
+// ============================================
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        loadFoodRecommendations();
+
+    }
+);
+// ============================================
+// CUSTOMER ORDER TRACKING
+// ============================================
+
+let orderTrackingInterval = null;
+
+
+// --------------------------------------------
+// GET CURRENT CUSTOMER
+// --------------------------------------------
+
+function getCurrentCustomer() {
+
+    try {
+
+        const sessionUser =
+            sessionStorage.getItem('currentUser');
+
+        const localUser =
+            localStorage.getItem('user');
+
+        const user =
+            JSON.parse(
+                sessionUser ||
+                localUser ||
+                'null'
+            );
+
+        return user;
+
+    } catch (error) {
+
+        console.error(
+            'Unable to read current user:',
+            error
+        );
+
+        return null;
+    }
+}
+
+
+// --------------------------------------------
+// LOAD CUSTOMER ORDERS
+// --------------------------------------------
+
+async function trackMyOrders() {
+
+    const container =
+        document.getElementById(
+            'my-orders-container'
+        );
+
+    if (!container) return;
+
+    const user =
+        getCurrentCustomer();
+
+    if (
+        !user ||
+        user.role !== 'customer'
+    ) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+
+                <i class="fas fa-user-lock"></i>
+
+                <h3>Please Login</h3>
+
+                <p>
+                    Login as a customer to view
+                    your orders and tracking status.
+                </p>
+
+                <a
+                    href="login.html"
+                    style="
+                        display:inline-block;
+                        margin-top:10px;
+                        padding:10px 20px;
+                        background:#667eea;
+                        color:white;
+                        border-radius:8px;
+                        text-decoration:none;
+                    "
+                >
+                    Login
+                </a>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    const email =
+        user.email ||
+        localStorage.getItem(
+            'userEmail'
+        );
+
+    if (!email) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/orders/${encodeURIComponent(email)}`
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                'Unable to load orders'
+            );
+        }
+
+        const orders =
+            Array.isArray(data.orders)
+                ? data.orders
+                : [];
+
+        if (orders.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+
+                    <i
+                        class="fas fa-receipt"
+                        style="
+                            font-size:40px;
+                            margin-bottom:12px;
+                        "
+                    ></i>
+
+                    <h3>No Orders Yet</h3>
+
+                    <p>
+                        Your placed orders will
+                        appear here.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        // Newest order first
+        orders.sort(
+            (a, b) =>
+                new Date(b.orderTime) -
+                new Date(a.orderTime)
+        );
+
+        container.innerHTML =
+            orders
+                .map(
+                    order =>
+                        createOrderTrackingCard(
+                            order
+                        )
+                )
+                .join('');
+
+    } catch (error) {
+
+        console.error(
+            'Order tracking error:',
+            error
+        );
+
+        container.innerHTML = `
+            <div style="
+                padding:20px;
+                background:#fff5f5;
+                border:1px solid #ffcaca;
+                border-radius:12px;
+                text-align:center;
+                color:#b42318;
+            ">
+
+                <i class="fas fa-exclamation-circle"></i>
+
+                <p>
+                    Unable to load your orders.
+                </p>
+
+                <button
+                    onclick="trackMyOrders()"
+                    style="
+                        padding:9px 18px;
+                        border:none;
+                        border-radius:7px;
+                        background:#667eea;
+                        color:white;
+                        cursor:pointer;
+                    "
+                >
+                    Retry
+                </button>
+
+            </div>
+        `;
+    }
+}
+
+
+// --------------------------------------------
+// CREATE ORDER TRACKING CARD
+// --------------------------------------------
+
+function createOrderTrackingCard(order) {
+
+    const status =
+        order.status || 'pending';
+
+    const statusLabels = {
+
+        pending: 'Order Pending',
+
+        confirmed: 'Order Accepted',
+
+        preparing: 'Preparing Your Food',
+
+        ready: 'Food Ready',
+
+        out_for_delivery:
+            'Out for Delivery',
+
+        delivered:
+            'Delivered',
+
+        cancelled:
+            'Order Cancelled'
+    };
+
+    const statusIcons = {
+
+        pending: 'fa-clock',
+
+        confirmed: 'fa-check',
+
+        preparing: 'fa-fire',
+
+        ready: 'fa-box',
+
+        out_for_delivery:
+            'fa-motorcycle',
+
+        delivered:
+            'fa-check-circle',
+
+        cancelled:
+            'fa-times-circle'
+    };
+
+    const steps = [
+
+        {
+            key: 'pending',
+            label: 'Order Placed',
+            icon: 'fa-receipt'
+        },
+
+        {
+            key: 'confirmed',
+            label: 'Accepted',
+            icon: 'fa-check'
+        },
+
+        {
+            key: 'preparing',
+            label: 'Preparing',
+            icon: 'fa-fire'
+        },
+
+        {
+            key: 'ready',
+            label: 'Ready',
+            icon: 'fa-box'
+        },
+
+        {
+            key: 'out_for_delivery',
+            label: 'Out for Delivery',
+            icon: 'fa-motorcycle'
+        },
+
+        {
+            key: 'delivered',
+            label: 'Delivered',
+            icon: 'fa-check-circle'
+        }
+    ];
+
+    const statusOrder = [
+        'pending',
+        'confirmed',
+        'preparing',
+        'ready',
+        'out_for_delivery',
+        'delivered'
+    ];
+
+    const currentIndex =
+        statusOrder.indexOf(status);
+
+    const orderItems =
+        Array.isArray(order.items)
+            ? order.items
+            : [];
+
+    const canteens =
+        [
+            ...new Set(
+                orderItems
+                    .map(item => item.canteen)
+                    .filter(Boolean)
+            )
+        ];
+
+    const canteenText =
+        canteens.length > 0
+            ? canteens.join(', ')
+            : 'Canteen';
+
+    const itemsHTML =
+        orderItems
+            .map(item => `
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:10px;
+                    padding:7px 0;
+                    border-bottom:1px solid #eee;
+                ">
+                    <span>
+                        ${escapeTrackingHTML(
+                            item.quantity
+                        )} ×
+                        ${escapeTrackingHTML(
+                            item.name
+                        )}
+                    </span>
+
+                    <strong>
+                        ₹${(
+                            Number(item.price || 0) *
+                            Number(item.quantity || 1)
+                        ).toFixed(2)}
+                    </strong>
+                </div>
+            `)
+            .join('');
+
+    const stepsHTML =
+        steps
+            .map((step, index) => {
+
+                const completed =
+                    currentIndex >= index &&
+                    status !== 'cancelled';
+
+                const active =
+                    status === step.key;
+
+                return `
+                    <div style="
+                        flex:1;
+                        min-width:85px;
+                        text-align:center;
+                        position:relative;
+                    ">
+
+                        <div style="
+                            width:38px;
+                            height:38px;
+                            margin:0 auto 7px;
+                            border-radius:50%;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            background:${
+                                completed
+                                    ? '#667eea'
+                                    : '#e5e7eb'
+                            };
+                            color:${
+                                completed
+                                    ? 'white'
+                                    : '#777'
+                            };
+                            font-size:14px;
+                        ">
+
+                            <i class="
+                                fas
+                                ${step.icon}
+                            "></i>
+
+                        </div>
+
+                        <div style="
+                            font-size:12px;
+                            font-weight:${
+                                active
+                                    ? '700'
+                                    : '500'
+                            };
+                            color:${
+                                active
+                                    ? '#667eea'
+                                    : '#666'
+                            };
+                        ">
+                            ${step.label}
+                        </div>
+
+                    </div>
+                `;
+            })
+            .join('');
+
+    const locationHTML =
+        order.latitude !== null &&
+        order.latitude !== undefined &&
+        order.longitude !== null &&
+        order.longitude !== undefined
+            ? `
+                <div style="
+                    margin-top:8px;
+                    font-size:13px;
+                    color:#666;
+                ">
+                    🗺️ Location:
+                    ${Number(
+                        order.latitude
+                    ).toFixed(5)},
+                    ${Number(
+                        order.longitude
+                    ).toFixed(5)}
+                </div>
+            `
+            : '';
+
+    const statusHistoryHTML =
+        Array.isArray(order.statusHistory) &&
+        order.statusHistory.length > 0
+            ? `
+                <div style="
+                    margin-top:18px;
+                    padding-top:15px;
+                    border-top:1px solid #eee;
+                ">
+
+                    <strong>
+                        Status Updates
+                    </strong>
+
+                    <div style="
+                        margin-top:8px;
+                    ">
+
+                        ${order.statusHistory
+                            .slice()
+                            .reverse()
+                            .map(history => `
+                                <div style="
+                                    display:flex;
+                                    justify-content:space-between;
+                                    gap:10px;
+                                    padding:6px 0;
+                                    font-size:13px;
+                                ">
+
+                                    <span>
+                                        ${formatTrackingStatus(
+                                            history.status
+                                        )}
+                                    </span>
+
+                                    <span style="
+                                        color:#888;
+                                    ">
+                                        ${formatTrackingDate(
+                                            history.updatedAt
+                                        )}
+                                    </span>
+
+                                </div>
+                            `)
+                            .join('')}
+
+                    </div>
+
+                </div>
+            `
+            : '';
+
+    const cancelledHTML =
+        status === 'cancelled'
+            ? `
+                <div style="
+                    margin-top:15px;
+                    padding:12px;
+                    background:#fff1f2;
+                    color:#b42318;
+                    border-radius:8px;
+                    font-weight:600;
+                ">
+                    <i class="fas fa-times-circle"></i>
+                    This order has been cancelled.
+                </div>
+            `
+            : '';
+
+    return `
+        <div style="
+            background:white;
+            border-radius:16px;
+            padding:20px;
+            margin-bottom:20px;
+            box-shadow:0 4px 15px rgba(0,0,0,.08);
+            border:1px solid #eee;
+        ">
+
+            <!-- ORDER HEADER -->
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:flex-start;
+                gap:15px;
+                flex-wrap:wrap;
+                margin-bottom:18px;
+            ">
+
+                <div>
+
+                    <h3 style="
+                        margin:0 0 6px;
+                        color:#222;
+                    ">
+                        Order #${escapeTrackingHTML(
+                            order.orderId
+                        )}
+                    </h3>
+
+                    <div style="
+                        color:#777;
+                        font-size:14px;
+                    ">
+                        🎟️ Token:
+                        <strong>
+                            ${escapeTrackingHTML(
+                                order.token || 'N/A'
+                            )}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div style="
+                    padding:8px 14px;
+                    border-radius:20px;
+                    background:#eef2ff;
+                    color:#4f46e5;
+                    font-weight:700;
+                    font-size:13px;
+                ">
+
+                    <i class="
+                        fas
+                        ${statusIcons[status] ||
+                        'fa-info-circle'}
+                    "></i>
+
+                    ${statusLabels[status] ||
+                    'Order Status'}
+
+                </div>
+
+            </div>
+
+
+            <!-- ORDER PROGRESS -->
+
+            ${
+                status !== 'cancelled'
+                    ? `
+                        <div style="
+                            display:flex;
+                            gap:4px;
+                            overflow-x:auto;
+                            padding:15px 0 20px;
+                            margin-bottom:15px;
+                        ">
+
+                            ${stepsHTML}
+
+                        </div>
+                    `
+                    : ''
+            }
+
+
+            <!-- ORDER DETAILS -->
+
+            <div style="
+                display:grid;
+                grid-template-columns:
+                    repeat(auto-fit,minmax(220px,1fr));
+                gap:15px;
+            ">
+
+                <div style="
+                    padding:14px;
+                    background:#f8f9fa;
+                    border-radius:10px;
+                ">
+
+                    <strong>
+                        <i class="fas fa-store"></i>
+                        Canteen
+                    </strong>
+
+                    <div style="
+                        margin-top:6px;
+                        color:#555;
+                    ">
+                        ${escapeTrackingHTML(
+                            canteenText
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    padding:14px;
+                    background:#f8f9fa;
+                    border-radius:10px;
+                ">
+
+                    <strong>
+                        <i class="fas fa-user"></i>
+                        Customer
+                    </strong>
+
+                    <div style="
+                        margin-top:6px;
+                        color:#555;
+                    ">
+                        ${escapeTrackingHTML(
+                            order.customerName ||
+                            'Not provided'
+                        )}
+                    </div>
+
+                    <div style="
+                        margin-top:4px;
+                        color:#555;
+                    ">
+                        📞 ${escapeTrackingHTML(
+                            order.phone ||
+                            'Not provided'
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    padding:14px;
+                    background:#f8f9fa;
+                    border-radius:10px;
+                ">
+
+                    <strong>
+                        <i class="fas fa-map-marker-alt"></i>
+                        Delivery Address
+                    </strong>
+
+                    <div style="
+                        margin-top:6px;
+                        color:#555;
+                    ">
+                        ${escapeTrackingHTML(
+                            order.deliveryAddress ||
+                            'Not provided'
+                        )}
+                    </div>
+
+                    ${locationHTML}
+
+                </div>
+
+
+                <div style="
+                    padding:14px;
+                    background:#f8f9fa;
+                    border-radius:10px;
+                ">
+
+                    <strong>
+                        <i class="fas fa-credit-card"></i>
+                        Payment
+                    </strong>
+
+                    <div style="
+                        margin-top:6px;
+                        color:#555;
+                    ">
+                        ${escapeTrackingHTML(
+                            order.paymentMethod ||
+                            'Demo'
+                        )}
+                        —
+                        <strong>
+                            ${escapeTrackingHTML(
+                                order.paymentStatus ||
+                                'pending'
+                            )}
+                        </strong>
+                    </div>
+
+                    <div style="
+                        margin-top:4px;
+                        font-size:13px;
+                        color:#777;
+                    ">
+                        ₹${Number(
+                            order.totalPrice || 0
+                        ).toFixed(2)}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ITEMS -->
+
+            <div style="
+                margin-top:18px;
+                padding:15px;
+                border:1px solid #eee;
+                border-radius:10px;
+            ">
+
+                <strong>
+                    <i class="fas fa-utensils"></i>
+                    Ordered Items
+                </strong>
+
+                <div style="
+                    margin-top:8px;
+                ">
+                    ${itemsHTML}
+                </div>
+
+            </div>
+
+
+            <!-- TIME -->
+
+            <div style="
+                margin-top:15px;
+                color:#777;
+                font-size:13px;
+            ">
+
+                <div>
+                    🕐 Ordered:
+                    ${formatTrackingDate(
+                        order.orderTime
+                    )}
+                </div>
+
+                ${
+                    order.estimatedDeliveryTime
+                        ? `
+                            <div style="
+                                margin-top:4px;
+                            ">
+                                ⏱️ Estimated:
+                                ${formatTrackingDate(
+                                    order.estimatedDeliveryTime
+                                )}
+                            </div>
+                        `
+                        : ''
+                }
+
+            </div>
+
+            ${statusHistoryHTML}
+
+            ${cancelledHTML}
+
+        </div>
+    `;
+}
+
+
+// --------------------------------------------
+// ESCAPE HTML
+// --------------------------------------------
+
+function escapeTrackingHTML(value) {
+
+    return String(
+        value ?? ''
+    )
+        .replace(
+            /&/g,
+            '&amp;'
+        )
+        .replace(
+            /</g,
+            '&lt;'
+        )
+        .replace(
+            />/g,
+            '&gt;'
+        )
+        .replace(
+            /"/g,
+            '&quot;'
+        )
+        .replace(
+            /'/g,
+            '&#039;'
+        );
+}
+
+
+// --------------------------------------------
+// FORMAT STATUS
+// --------------------------------------------
+
+function formatTrackingStatus(status) {
+
+    const labels = {
+
+        pending:
+            'Order Placed',
+
+        confirmed:
+            'Order Accepted',
+
+        preparing:
+            'Preparing',
+
+        ready:
+            'Ready',
+
+        out_for_delivery:
+            'Out for Delivery',
+
+        delivered:
+            'Delivered',
+
+        cancelled:
+            'Cancelled'
+    };
+
+    return labels[status] ||
+        String(status || 'Unknown');
+}
+
+
+// --------------------------------------------
+// FORMAT DATE
+// --------------------------------------------
+
+function formatTrackingDate(dateValue) {
+
+    if (!dateValue) {
+        return 'Not available';
+    }
+
+    const date =
+        new Date(dateValue);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return 'Not available';
+    }
+
+    return date.toLocaleString(
+        'en-IN',
+        {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        }
+    );
+}
+
+
+// --------------------------------------------
+// START AUTO REFRESH
+// --------------------------------------------
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        trackMyOrders();
+
+        if (
+            !orderTrackingInterval
+        ) {
+
+            orderTrackingInterval =
+                setInterval(
+                    trackMyOrders,
+                    10000
+                );
+        }
+
+    }
+);

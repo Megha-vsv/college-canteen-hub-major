@@ -1,0 +1,30 @@
+[
+  {
+    "foodItem": "Club Sandwich",
+    "predictedQuantity": 1.0,
+    "demandLevel": "Low",
+    "recommendation": "Prepare limited stock to reduce possible food waste.",
+    "method": "Average-based prediction"
+  },
+  {
+    "foodItem": "Chocolate Lava Cake",
+    "predictedQuantity": 1.0,
+    "demandLevel": "Low",
+    "recommendation": "Prepare limited stock to reduce possible food waste.",
+    "method": "Average-based prediction"
+  },
+  {
+    "foodItem": "Rasmalai",
+    "predictedQuantity": 1.0,
+    "demandLevel": "Low",
+    "recommendation": "Prepare limited stock to reduce possible food waste.",
+    "method": "Average-based prediction"
+  },
+  {
+    "foodItem": "Blueberry Muffin",
+    "predictedQuantity": 1.0,
+    "demandLevel": "Low",
+    "recommendation": "Prepare limited stock to reduce possible food waste.",
+    "method": "Average-based prediction"
+  }
+]

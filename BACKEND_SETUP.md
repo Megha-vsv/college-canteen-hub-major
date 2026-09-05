@@ -62,7 +62,7 @@ Backend (Node.js + Express)
 ├── Authentication (Login/Register)
 ├── Order Management (Create, Update, Cancel)
 ├── Menu Management (Add, Edit, Delete items)
-├── Payment Processing (Mock payment)
+├── Payment Processing (Free demo online payment)
 ├── Analytics (Orders & Users stats)
 └── Admin Features (User management)
 
@@ -98,7 +98,7 @@ Data Storage (JSON Files)
 - `GET /api/analytics/users` - User statistics
 
 ### Payments
-- `POST /api/payment/process` - Process payment
+- `POST /api/payment/demo` - Process a free demo payment simulation
 
 ### Admin
 - `GET /api/admin/users` - Get all users
@@ -426,3 +426,21 @@ After setup, verify everything works:
 **Status:** ✅ Ready for Development
 
 For complete API details, see **API_DOCUMENTATION.md**
+
+## Final Feature Configuration
+
+### Free Demo Online Payment
+The project now uses a built-in payment simulation for the college demonstration.
+- No Razorpay account or payment API key is required.
+- No real money is charged.
+- Students can select UPI, Card, Net Banking, or Demo Pay.
+- The backend creates a demo payment ID and marks the order as paid after the simulated payment succeeds.
+- The UI clearly labels the payment as a demo/simulation.
+
+### TomTom Delivery Location Map
+1. Create a TomTom API key in MyTomTom.
+2. Add `http://localhost:3000` to Domain Whitelisting for local testing.
+3. Open `script.js` and replace `YOUR_TOMTOM_API_KEY` with your TomTom key.
+4. The map uses TomTom map tiles and TomTom Reverse Geocoding to turn the selected GPS coordinates into a readable delivery address.
+5. After deployment, add the deployed website origin to TomTom Domain Whitelisting as well.
+

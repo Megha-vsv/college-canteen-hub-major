@@ -261,10 +261,12 @@
                 <!-- Shopkeeper Login -->
                 <form class="login-form" id="shopkeeper-form" onsubmit="login(event, 'shopkeeper')">
                     <div class="demo-info">
-                        <strong>Demo Email:</strong>
-                        shopkeeper@college.com<br>
-                        <strong>Password:</strong>
-                        shopkeeper123
+                        <strong>Shopkeeper Demo Accounts</strong>
+                        Utopia: shopkeeper@college.com / shopkeeper123<br>
+                        Captain Cuisine: captain@college.com / captain123<br>
+                        Farki: farki@college.com / farki123<br>
+                        Belgian Waffle: belgian@college.com / belgian123<br>
+                        La Pinoz Pizza: lapinoz@college.com / lapinoz123
                     </div>
                     <div class="form-group">
                         <label>Email</label>
@@ -296,6 +298,9 @@
                     <button type="submit" class="login-btn">Login as Admin</button>
                 </form>
 
+                <div style="margin-top:18px;text-align:center;">
+                    <button type="button" onclick="registerCustomer()" style="border:0;background:none;color:#667eea;font-weight:600;cursor:pointer;">New student? Create account</button>
+                </div>
                 <div class="back-link">
                     <a onclick="goToHome()">← Back to Home</a>
                 </div>
@@ -304,73 +309,76 @@
     </div>
 
     <script>
-        // Demo credentials
         const CREDENTIALS = {
-            customer: {
-                email: 'customer@college.com',
-                password: 'customer123'
-            },
-            shopkeeper: {
-                email: 'shopkeeper@college.com',
-                password: 'shopkeeper123'
-            },
-            admin: {
-                email: 'admin@college.com',
-                password: 'admin123'
-            }
+            customer: { email: 'customer@college.com', password: 'customer123' },
+            shopkeepers: [
+                { email: 'shopkeeper@college.com', password: 'shopkeeper123', shop: 'Utopia' },
+                { email: 'captain@college.com', password: 'captain123', shop: 'Captain Cuisine' },
+                { email: 'farki@college.com', password: 'farki123', shop: 'Farki' },
+                { email: 'belgian@college.com', password: 'belgian123', shop: 'Belgian Waffle' },
+                { email: 'lapinoz@college.com', password: 'lapinoz123', shop: 'La Pinoz Pizza' }
+            ],
+            admin: { email: 'admin@college.com', password: 'admin123' }
         };
 
         function selectRole(role) {
-            // Hide all forms
-            document.querySelectorAll('.login-form').forEach(form => {
-                form.classList.remove('active');
-            });
-
-            // Remove active from all buttons
-            document.querySelectorAll('.role-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Show selected form
+            document.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(role + '-form').classList.add('active');
-
-            // Add active to clicked button
-            event.target.closest('.role-btn').classList.add('active');
+            const button = Array.from(document.querySelectorAll('.role-btn')).find(btn => btn.querySelector('span')?.textContent.toLowerCase().includes(role));
+            if (button) button.classList.add('active');
         }
 
-        function login(event, role) {
+        async function login(event, role) {
             event.preventDefault();
-
-            const email = document.getElementById(role + '-email').value;
+            const email = document.getElementById(role + '-email').value.trim().toLowerCase();
             const password = document.getElementById(role + '-password').value;
-
-            // Verify credentials
-            if (email === CREDENTIALS[role].email && password === CREDENTIALS[role].password) {
-                // Store user info in session
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message || 'Invalid email or password');
+                sessionStorage.removeItem('selectedShop');
+                localStorage.removeItem('selectedShop');
+                localStorage.setItem('authToken', data.token || '');
+                localStorage.setItem('userId', data.user.id || '');
+                localStorage.setItem('userEmail', data.user.email || email);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 sessionStorage.setItem('currentUser', JSON.stringify({
-                    role: role,
-                    email: email,
-                    name: role.charAt(0).toUpperCase() + role.slice(1)
+                    ...data.user,
+                    shop: data.user.shop || null
                 }));
-
-                // Redirect based on role
-                if (role === 'customer') {
-                    window.location.href = 'index.html';
-                } else if (role === 'shopkeeper') {
-                    window.location.href = 'shopkeeper.html';
-                } else if (role === 'admin') {
-                    window.location.href = 'admin.html';
-                }
-            } else {
-                alert('Invalid email or password!');
+                if (data.user.role === 'customer') window.location.href = 'index.html';
+                else if (data.user.role === 'shopkeeper') window.location.href = 'shopkeeper.html';
+                else if (data.user.role === 'admin') window.location.href = 'admin.html';
+            } catch (error) {
+                alert(error.message || 'Login failed. Please make sure the server is running.');
             }
         }
 
-        function goToHome() {
-            window.location.href = 'index.html';
+        async function registerCustomer() {
+            const name = prompt('Enter your name:');
+            if (!name) return;
+            const email = prompt('Enter your email:');
+            if (!email) return;
+            const password = prompt('Create a password (minimum 6 characters):');
+            if (!password || password.length < 6) return alert('Password must be at least 6 characters.');
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password, role: 'customer' })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message || 'Registration failed');
+                alert('Account created successfully. You can now login.');
+                document.getElementById('customer-email').value = email.trim().toLowerCase();
+                document.getElementById('customer-password').value = password;
+                selectRole('customer');
+            } catch (error) { alert(error.message || 'Registration failed.'); }
         }
 
-        // Set demo email on page load
+        function goToHome() { window.location.href = 'index.html'; }
+
         window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('customer-email').value = CREDENTIALS.customer.email;
             document.getElementById('customer-password').value = CREDENTIALS.customer.password;

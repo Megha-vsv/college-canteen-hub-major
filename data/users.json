@@ -1,0 +1,70 @@
+[
+  {
+    "id": "demo-customer",
+    "email": "customer@college.com",
+    "password": "customer123",
+    "name": "Customer",
+    "role": "customer",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-utopia",
+    "email": "shopkeeper@college.com",
+    "password": "shopkeeper123",
+    "name": "Utopia",
+    "role": "shopkeeper",
+    "shop": "Utopia",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-captain",
+    "email": "captain@college.com",
+    "password": "captain123",
+    "name": "Captain Cuisine",
+    "role": "shopkeeper",
+    "shop": "Captain Cuisine",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-farki",
+    "email": "farki@college.com",
+    "password": "farki123",
+    "name": "Farki",
+    "role": "shopkeeper",
+    "shop": "Farki",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-belgian",
+    "email": "belgian@college.com",
+    "password": "belgian123",
+    "name": "Belgian Waffle",
+    "role": "shopkeeper",
+    "shop": "Belgian Waffle",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-lapinoz",
+    "email": "lapinoz@college.com",
+    "password": "lapinoz123",
+    "name": "La Pinoz Pizza",
+    "role": "shopkeeper",
+    "shop": "La Pinoz Pizza",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "id": "demo-admin",
+    "email": "admin@college.com",
+    "password": "admin123",
+    "name": "Admin",
+    "role": "admin",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "status": "active"
+  }
+]
