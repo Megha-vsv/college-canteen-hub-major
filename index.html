@@ -31,6 +31,15 @@
 </head>
 
 <body>
+    <script>
+    const authToken = localStorage.getItem('authToken');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (!authToken || !user || user.role !== 'customer') {
+        window.location.href = 'login.html';
+    }
+</script>
+
 
     <!-- ============================================
          HEADER
